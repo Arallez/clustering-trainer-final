@@ -1,0 +1,92 @@
+﻿{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Список понятий онтологии - {{ block.super }}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/encyclopedia/list.css' %}?v=1.2">
+{% endblock %}
+
+{% block content %}
+<canvas id="particles-canvas"></canvas>
+
+<div class="encyclopedia-page">
+    <div class="page-header">
+        <h1>Словарь <span class="highlight">терминов</span></h1>
+    </div>
+
+    <div class="controls-container">
+        <div class="view-toggle">
+            <a href="{% url 'encyclopedia:graph' %}" class="toggle-btn">
+                <i data-lucide="network"></i>
+                Интерактивный граф
+            </a>
+            <a href="{% url 'encyclopedia:list' %}" class="toggle-btn active">
+                <i data-lucide="list"></i>
+                Список понятий
+            </a>
+        </div>
+
+        <div class="search-container">
+            <span class="search-icon">
+                <i data-lucide="search"></i>
+            </span>
+            <input type="text" id="conceptSearch" class="search-input" placeholder="Поиск по названию или описанию..." autofocus>
+        </div>
+    </div>
+
+    <div class="concept-grid" id="conceptsContainer">
+        {% for concept in concepts %}
+        <a href="{% url 'encyclopedia:detail' concept.id %}" class="concept-card"
+           data-title="{{ concept.title|lower|escape }}"
+           data-desc="{{ concept.description|lower|escape }}">
+
+            <div class="card-header">
+                <h3 class="concept-title">{{ concept.title }}</h3>
+                <span class="concept-type-badge">
+                    {% if 'Algo' in concept.uri %}Алгоритм
+                    {% elif 'Metric' in concept.uri %}Метрика
+                    {% elif 'Param' in concept.uri %}Параметр
+                    {% else %}Понятие{% endif %}
+                </span>
+            </div>
+
+            <div class="concept-uri">{{ concept.uri|slice:"-30:" }}</div>
+
+            <div class="concept-desc markdown-content">
+                {{ concept.description|default:"Описание отсутствует в базе знаний." }}
+            </div>
+
+            <div class="concept-meta">
+                <span class="meta-item">
+                    <i data-lucide="link"></i>
+                    Связей: {{ concept.relations_out.count|add:concept.relations_in.count }}
+                </span>
+                <span class="meta-item meta-item-end">Подробнее →</span>
+            </div>
+        </a>
+        {% empty %}
+        <div class="empty-state">
+            <div class="empty-icon"><i data-lucide="database"></i></div>
+            <h3>База знаний пуста</h3>
+            <p>Загрузите OWL-онтологию через команду `sync_ontology`</p>
+        </div>
+        {% endfor %}
+
+        <div id="noResults" class="empty-state">
+            <div class="empty-icon"><i data-lucide="search-x"></i></div>
+            <h3>Ничего не найдено</h3>
+            <p>Попробуйте изменить поисковый запрос</p>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block markdown_js %}
+    {% include 'includes/markdown_scripts.html' %}
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/core/particles.js' %}"></script>
+<script src="{% static 'js/encyclopedia/list.js' %}"></script>
+{% endblock %}

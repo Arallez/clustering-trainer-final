@@ -1,0 +1,127 @@
+{% extends 'testing/base_testing.html' %}
+
+{% block title %}Результаты: {{ test.title }}{% endblock %}
+
+{% block testing_content %}
+    <!-- Page Header -->
+    <header class="page-header">
+      <div class="breadcrumbs">
+        <a href="{% url 'testing:home' %}">
+          <i data-lucide="arrow-left"></i>
+          К списку тестов
+        </a>
+      </div>
+      <h1>Результаты: {{ test.title }}</h1>
+    </header>
+
+    <!-- Test Info Card -->
+    <div class="testing-card">
+      <div class="card-header">
+        <div class="card-icon">
+          <i data-lucide="clipboard-list"></i>
+        </div>
+        <div class="card-title-group">
+          <h2>Группа: {{ test.group.name }}</h2>
+          <div class="card-subtitle">
+            Ручных: {{ test.questions.count }} | Авто: {{ test.test_tasks.count }} | Макс. балл: {{ test.max_possible_score }}
+          </div>
+        </div>
+      </div>
+      <div class="test-stats">
+        <div class="stat-item">
+          <i data-lucide="calendar"></i>
+          <span>{{ test.opens_at|date:"d.m.Y H:i" }} — {{ test.closes_at|date:"d.m.Y H:i" }}</span>
+        </div>
+        <div class="stat-item">
+          <i data-lucide="users"></i>
+          <span>Сдали: <strong>{{ attempts_data|length }}</strong> чел.</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Results Table Card -->
+    <div class="testing-card">
+      <div class="card-header">
+        <div class="card-icon">
+          <i data-lucide="file-text"></i>
+        </div>
+        <h2>Работы студентов</h2>
+      </div>
+      
+      {% if attempts_data %}
+      <div class="table-wrapper">
+        <table class="result-table">
+          <thead>
+            <tr>
+              <th>Студент</th>
+              <th>Начато</th>
+              <th>Сдано</th>
+              <th>Выполнено</th>
+              <th>Статус</th>
+              <th>Балл</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for row in attempts_data %}
+            <tr>
+              <td>
+                <div class="student-info">
+                  <strong class="student-name">{{ row.attempt.user.username }}</strong>
+                  <span class="student-fullname">{{ row.attempt.user.get_full_name|default:"-" }}</span>
+                </div>
+              </td>
+              <td>{{ row.attempt.started_at|date:"d.m.Y H:i" }}</td>
+              <td>
+                {% if row.attempt.submitted_at %}
+                {{ row.attempt.submitted_at|date:"d.m.Y H:i" }}
+                {% else %}
+                <span class="status-badge status-badge--info">В процессе</span>
+                {% endif %}
+              </td>
+              <td>
+                <span class="progress-text">{{ row.progress.attempted }} / {{ row.progress.total }}</span>
+              </td>
+              <td>
+                {% if row.attempt.is_graded %}
+                <span class="status-badge status-badge--success">Проверено</span>
+                {% elif row.attempt.submitted_at %}
+                <span class="status-badge status-badge--warning">Требует проверки</span>
+                {% else %}
+                <span class="status-badge status-badge--info">В процессе</span>
+                {% endif %}
+              </td>
+              <td>
+                {% if row.attempt.is_graded %}
+                <span class="score-display">
+                  <span class="score-value score-value--{{ row.score_status }}">{{ row.attempt.total_score }}</span>
+                  <span class="score-max">/ {{ test.max_possible_score }}</span>
+                  <span class="score-percent--{{ row.score_status }}">({{ row.score_percent }}%)</span>
+                </span>
+                {% else %}
+                <span class="score-empty">—</span>
+                {% endif %}
+              </td>
+              <td>
+                {% if row.attempt.submitted_at %}
+                <a href="{% url 'testing:grade_attempt' row.attempt.id %}" class="btn btn-outline btn-sm">
+                  <i data-lucide="{% if row.attempt.is_graded %}eye{% else %}edit{% endif %}"></i>
+                  {% if row.attempt.is_graded %}Смотреть{% else %}Проверить{% endif %}
+                </a>
+                {% else %}
+                <span class="meta-muted">Ещё не сдан</span>
+                {% endif %}
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+      <div class="empty-state">
+        <i data-lucide="users"></i>
+        <p>Пока никто не приступал к этому тесту.</p>
+      </div>
+      {% endif %}
+    </div>
+{% endblock %}

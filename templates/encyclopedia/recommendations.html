@@ -1,0 +1,326 @@
+﻿{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Адаптивное обучение - {{ block.super }}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/encyclopedia/recommendations.css' %}?v=2.1">
+{% endblock %}
+
+{% block content %}
+<canvas id="particles-canvas"></canvas>
+
+<div class="recommendations-page">
+  <div class="bg-orb bg-orb--primary"></div>
+  <div class="bg-orb bg-orb--accent"></div>
+
+  <main class="recommendations-main">
+    <header class="page-header">
+      <h1>Учебный <span class="highlight">маршрут</span></h1>
+    </header>
+
+    <div class="progress-card">
+      <h2 class="card-title">Общий прогресс по онтологии</h2>
+
+      <div class="progress-wrapper">
+        <div class="progress-container">
+          <div class="progress-bar" data-progress="{{ progress.progress_percent|default:0 }}"></div>
+        </div>
+        <div class="progress-text">{{ progress.progress_percent|default:0 }}%</div>
+      </div>
+
+      <div class="stats-row">
+        <div class="stat-item">
+          <h3 class="text-success">{{ progress.learned_count|default:0 }}</h3>
+          <span>Освоено концептов</span>
+        </div>
+        <div class="stat-item">
+          <h3>{{ progress.total_count|default:0 }}</h3>
+          <span>Всего концептов</span>
+        </div>
+        <div class="stat-item">
+          <h3 class="text-warning">{{ progress.completed_materials_count|default:0 }} / {{ progress.total_materials_count|default:0 }}</h3>
+          <span>Изучено материалов</span>
+        </div>
+        <div class="stat-item">
+          <h3 class="text-primary">{{ progress.available_tasks_count|default:0 }}</h3>
+          <span>В фокусе рекомендаций</span>
+        </div>
+        <div class="stat-item">
+          <h3 class="text-secondary">{{ progress.completed_simulators_count|default:0 }}</h3>
+          <span>Симуляций пройдено</span>
+        </div>
+      </div>
+
+      <p class="progress-note">Процент считается по освоенным концептам онтологии. Задачи, материалы и симуляции показаны рядом как дополнительные показатели учебного маршрута.</p>
+    </div>
+
+    {% if demo_module %}
+    <section class="focus-card">
+      <div class="focus-card__header">
+        <div>
+          <span class="focus-card__eyebrow">Сейчас на очереди</span>
+          <h2>{{ demo_module.title }}</h2>
+          <p>{{ demo_module.summary }}</p>
+        </div>
+        <span class="module-status {{ demo_module.status_class }}">{{ demo_module.status_label }}</span>
+      </div>
+
+      <div class="focus-card__grid">
+        <div class="focus-panel">
+          <h3>Что сделать в модуле</h3>
+          <ul class="focus-list">
+            {% for action in demo_module.next_actions %}
+            <li>{{ action }}</li>
+            {% endfor %}
+          </ul>
+        </div>
+
+        <div class="focus-panel">
+          <h3>Ключевые темы</h3>
+          <ul class="focus-list">
+            {% for item in demo_module.highlights %}
+            <li>{{ item }}</li>
+            {% endfor %}
+          </ul>
+        </div>
+      </div>
+
+      <div class="focus-actions">
+        {% if demo_module.materials %}
+        <a href="{{ demo_module.materials.0.get_absolute_url }}" class="btn btn-outline">Открыть теорию</a>
+        {% endif %}
+        {% if demo_module.simulator_links %}
+        <a href="{{ demo_module.simulator_links.0.url }}" class="btn btn-outline">Открыть симулятор</a>
+        {% endif %}
+        {% if demo_module.recommended_tasks %}
+        <a href="{% url 'tasks:challenge_detail' demo_module.recommended_tasks.0.slug %}" class="btn btn-primary">Перейти к задаче</a>
+        {% endif %}
+      </div>
+
+      <div class="module-demo-flow">
+        <div class="module-demo-step">
+          <span class="module-demo-step__num">1</span>
+          <div>
+            <h3>Теория</h3>
+            <div class="module-demo-links">
+              {% for material in demo_module.materials|slice:":3" %}
+              <a href="{{ material.get_absolute_url }}">{{ material.title }}</a>
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+
+        <div class="module-demo-step">
+          <span class="module-demo-step__num">2</span>
+          <div>
+            <h3>Визуализация</h3>
+            <div class="module-demo-links">
+              {% for simulator in demo_module.simulator_links %}
+              <a href="{{ simulator.url }}">{{ simulator.label }}</a>
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+
+        <div class="module-demo-step">
+          <span class="module-demo-step__num">3</span>
+          <div>
+            <h3>Практика</h3>
+            <div class="module-demo-links">
+              {% for task in demo_module.tasks|slice:":3" %}
+              <a href="{% url 'tasks:challenge_detail' task.slug %}">{{ task.title }}</a>
+              {% endfor %}
+              {% if demo_final_task %}
+              <a href="{% url 'tasks:challenge_detail' demo_final_task.slug %}">{{ demo_final_task.title }}</a>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    {% endif %}
+
+    <div class="recommendations-grid">
+      <div class="recommendation-column">
+        <h2 class="column-title column-title--primary">
+          <i data-lucide="target"></i>
+          Что решать сейчас
+        </h2>
+        <p class="column-subtitle">Ближайшие задачи с учетом маршрута и уже показанных знаний.</p>
+
+        {% if recommended_tasks %}
+        <div class="recommendation-list">
+          {% for task in recommended_tasks %}
+          <a href="{% url 'tasks:challenge_detail' task.slug %}" class="rec-item">
+            <div class="rec-content">
+              <h6>{{ task.title }}</h6>
+              <small>{% if task.concept %}Связано с: {{ task.concept.title }}{% else %}Практическая задача{% endif %}</small>
+            </div>
+            <span class="rec-badge badge-primary">
+              Решать
+              <i data-lucide="arrow-right"></i>
+            </span>
+          </a>
+          {% endfor %}
+        </div>
+        {% else %}
+        <div class="rec-alert">
+          <i data-lucide="check-circle"></i>
+          <p>Сейчас нет новых задач в фокусе рекомендаций. Можно закрепить тему в теории, симуляторе или перейти к любому открытому модулю.</p>
+        </div>
+        {% endif %}
+      </div>
+
+      <div class="recommendation-column">
+        <h2 class="column-title column-title--warning">
+          <i data-lucide="book-open"></i>
+          Что изучить сейчас
+        </h2>
+        <p class="column-subtitle">Теория, которая лучше всего поддерживает следующий шаг в маршруте.</p>
+
+        {% if recommended_materials %}
+        <div class="recommendation-list">
+          {% for material in recommended_materials %}
+          <a href="{{ material.get_absolute_url }}" class="rec-item">
+            <div class="rec-content">
+              <h6>{{ material.title }}</h6>
+              <small>{% if material.concept %}Связано с: {{ material.concept.title }}{% else %}Теоретический материал{% endif %}</small>
+            </div>
+            <span class="rec-badge badge-warning">
+              Читать
+              <i data-lucide="arrow-right"></i>
+            </span>
+          </a>
+          {% endfor %}
+        </div>
+        {% else %}
+        <div class="rec-alert">
+          <i data-lucide="info"></i>
+          <p>Новых материалов по рекомендациям пока нет. Можно закрепить тему в симуляторе или перейти к следующему открытому модулю.</p>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+
+    <section class="modules-section">
+      <div class="section-heading">
+        <h2>Карта курса по модулям</h2>
+        <p>Маршрут выстроен от базы к выбору алгоритма под задачу. Каждый модуль объединяет теорию, симулятор и практику.</p>
+      </div>
+
+      <div class="modules-grid">
+        {% for module in learning_modules %}
+        <article id="{{ module.slug }}" class="module-card">
+          <div class="module-card__header">
+            <div>
+              <span class="module-order">Модуль {{ module.order }}</span>
+              <h3>{{ module.title }}</h3>
+              <p class="module-subtitle">{{ module.subtitle }}</p>
+            </div>
+            <span class="module-status {{ module.status_class }}">{{ module.status_label }}</span>
+          </div>
+
+          <p class="module-summary">{{ module.summary }}</p>
+
+          <div class="module-progress">
+            <div class="module-progress__bar">
+              <span style="width: {{ module.progress_percent }}%;"></span>
+            </div>
+            <span class="module-progress__text">{{ module.progress_percent }}%</span>
+          </div>
+
+          <ul class="module-highlights">
+            {% for item in module.highlights %}
+            <li>{{ item }}</li>
+            {% endfor %}
+          </ul>
+
+          <div class="module-stats">
+            <span class="module-chip">Материалы: {{ module.materials_count }}</span>
+            <span class="module-chip">Изучено: {{ module.completed_materials_count }}</span>
+            <span class="module-chip">Симулятор: {{ module.completed_simulators_count }} / {{ module.simulators_count }}</span>
+            <span class="module-chip">Задачи: {{ module.tasks_count }}</span>
+            <span class="module-chip">Концепты: {{ module.concepts_count }}</span>
+          </div>
+
+          {% if module.materials %}
+          <div class="module-block">
+            <h4>Теория</h4>
+            <div class="module-links">
+              {% for material in module.materials %}
+              <a href="{{ material.get_absolute_url }}" class="module-link {% if material.is_completed %}module-link--done{% elif material.is_opened %}module-link--seen{% endif %}">
+                <span class="module-link__text">{{ material.title }}</span>
+                {% if material.is_completed %}
+                <span class="module-link-status module-link-status--done">Изучено</span>
+                {% elif material.is_opened %}
+                <span class="module-link-status module-link-status--seen">Открыто</span>
+                {% else %}
+                <span class="module-link-status">Не прочитано</span>
+                {% endif %}
+              </a>
+              {% endfor %}
+            </div>
+          </div>
+          {% endif %}
+
+          {% if module.simulator_links %}
+          <div class="module-block">
+            <h4>Симулятор</h4>
+            <div class="module-links">
+              {% for simulator in module.simulator_links %}
+              <a href="{{ simulator.url }}" class="module-link {% if simulator.is_completed %}module-link--done{% endif %}">
+                <span class="module-link__text">{{ simulator.label }}</span>
+                {% if simulator.is_completed %}
+                <span class="module-link-status module-link-status--done">Пройдено</span>
+                {% else %}
+                <span class="module-link-status">Не пройдено</span>
+                {% endif %}
+              </a>
+              {% endfor %}
+            </div>
+          </div>
+          {% endif %}
+
+          {% if module.recommended_tasks %}
+          <div class="module-block">
+            <h4>Практика</h4>
+            <div class="module-links">
+              {% for task in module.recommended_tasks %}
+              <a href="{% url 'tasks:challenge_detail' task.slug %}" class="module-link">{{ task.title }}</a>
+              {% endfor %}
+            </div>
+          </div>
+          {% elif module.tasks %}
+          <div class="module-block">
+            <h4>Задачи модуля</h4>
+            <div class="module-links">
+              {% for task in module.tasks %}
+              <a href="{% url 'tasks:challenge_detail' task.slug %}" class="module-link">{{ task.title }}</a>
+              {% endfor %}
+            </div>
+          </div>
+          {% endif %}
+        </article>
+        {% endfor %}
+      </div>
+    </section>
+
+    <div class="center-action">
+      <a href="{% url 'tasks:task_list' %}" class="btn btn-outline">
+        <i data-lucide="list-todo"></i>
+        Открыть все задачи
+      </a>
+      <a href="{% url 'encyclopedia:graph' %}" class="btn btn-outline">
+        <i data-lucide="network"></i>
+        Посмотреть граф знаний
+      </a>
+    </div>
+  </main>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/core/particles.js' %}"></script>
+<script src="{% static 'js/encyclopedia/recommendations.js' %}"></script>
+{% endblock %}

@@ -1,0 +1,62 @@
+{% extends 'testing/base_testing.html' %}
+
+{% block title %}Просмотр задания: {{ question.title }}{% endblock %}
+
+{% block testing_pre_js %}
+{% include 'includes/markdown_scripts.html' %}
+{% endblock %}
+
+{% block testing_content %}
+    <!-- Page Header -->
+    <header class="page-header">
+      <div class="breadcrumbs">
+        <a href="javascript:window.close();">
+          <i data-lucide="x"></i>
+          Закрыть вкладку
+        </a>
+      </div>
+      <h1>{{ question.title }}</h1>
+    </header>
+
+    <!-- Question Card -->
+    <div class="testing-card">
+      <div class="card-header">
+        <div class="card-icon">
+          <i data-lucide="file-question"></i>
+        </div>
+        <div class="card-title-group">
+          <h2>Информация о задании</h2>
+        </div>
+      </div>
+      
+      <div class="question-meta">
+        <div class="meta-badge">
+          <i data-lucide="award"></i>
+          <span>Макс. балл: {{ question.max_score }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Question Content Card -->
+    <div class="testing-card">
+      <div class="card-header">
+        <div class="card-icon">
+          <i data-lucide="book-open"></i>
+        </div>
+        <h2>Условие задачи</h2>
+      </div>
+      
+      <div class="question-content markdown-content">
+        {{ question.content }}
+      </div>
+      
+      {% if question.attached_file %}
+      <div class="question-attachment">
+        <a href="{{ question.attached_file.url }}" target="_blank" class="file-link">
+          <i data-lucide="paperclip"></i>
+          Скачать прикрепленный материал
+        </a>
+      </div>
+      {% endif %}
+    </div>
+{% endblock %}

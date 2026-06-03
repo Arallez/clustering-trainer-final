@@ -1,0 +1,167 @@
+{% extends 'testing/base_testing.html' %}
+
+{% block title %}Тестирование{% endblock %}
+
+{% block testing_content %}
+    <!-- Page Header -->
+    <header class="page-header">
+      <h1><span class="highlight">Тестирование</span></h1>
+    </header>
+
+    <!-- Join Group Card -->
+    <div class="testing-card">
+      <div class="card-header">
+        <div class="card-icon">
+          <i data-lucide="users"></i>
+        </div>
+        <div class="card-title-group">
+          <h2>Подключиться к группе</h2>
+          <p class="card-subtitle">Введите код, который дал преподаватель</p>
+        </div>
+      </div>
+      <form action="{% url 'testing:join_group' %}" method="post" class="testing-form-inline">
+        {% csrf_token %}
+        <div class="input-wrapper">
+          <i data-lucide="key" class="input-icon"></i>
+          <input type="text" name="join_code" placeholder="Код группы" maxlength="16" required autocomplete="off">
+        </div>
+        <button type="submit" class="btn btn-primary">
+          <i data-lucide="log-in"></i>
+          Войти
+        </button>
+      </form>
+    </div>
+
+    {% if memberships %}
+    <!-- My Groups Card -->
+    <div class="testing-card">
+      <div class="card-header">
+        <div class="card-icon">
+          <i data-lucide="folder"></i>
+        </div>
+        <h2>Мои группы</h2>
+      </div>
+      <ul class="testing-list-plain">
+        {% for m in memberships %}
+        <li>
+          <i data-lucide="chevron-right"></i>
+          {{ m.group.name }}
+        </li>
+        {% endfor %}
+      </ul>
+    </div>
+    {% endif %}
+
+    <!-- Available Tests Card -->
+    <div class="testing-card">
+      <div class="card-header">
+        <div class="card-icon">
+          <i data-lucide="file-text"></i>
+        </div>
+        <h2>Доступные тесты</h2>
+      </div>
+      
+      {% if tests_with_status %}
+      <ul class="testing-list-tests">
+        {% for item in tests_with_status %}
+        <li>
+          <div class="test-info">
+            <strong class="test-title">{{ item.test.title }}</strong>
+            <div class="test-meta">
+              <span class="meta-item">
+                <i data-lucide="clock"></i>
+                {{ item.test.time_limit_minutes }} мин.
+              </span>
+              <span class="meta-item">
+                <i data-lucide="calendar"></i>
+                {{ item.test.opens_at|date:"d.m.Y H:i" }} — {{ item.test.closes_at|date:"d.m.Y H:i" }}
+              </span>
+              {% if item.status == 'active' %}
+                <span class="status-badge status-badge--active">Активен</span>
+              {% elif item.status == 'future' %}
+                <span class="status-badge status-badge--future">Скоро</span>
+              {% else %}
+                <span class="status-badge status-badge--past">Завершён</span>
+              {% endif %}
+            </div>
+          </div>
+          <div class="test-action">
+            {% if item.status == 'active' %}
+            <a href="{% url 'testing:start_test' item.test.pk %}" class="btn btn-primary">
+              <i data-lucide="play"></i>
+              Начать
+            </a>
+            {% elif item.status == 'future' %}
+            <span class="meta-muted">Доступен с {{ item.test.opens_at|date:"d.m.Y H:i" }}</span>
+            {% endif %}
+          </div>
+        </li>
+        {% endfor %}
+      </ul>
+      {% else %}
+      <div class="empty-state">
+        <i data-lucide="inbox"></i>
+        <p>Нет тестов. Подключитесь к группе по коду — после этого здесь появятся тесты преподавателя.</p>
+      </div>
+      {% endif %}
+    </div>
+
+    {% if attempts_with_progress %}
+    <!-- My Attempts Card -->
+    <div class="testing-card">
+      <div class="card-header">
+        <div class="card-icon">
+          <i data-lucide="history"></i>
+        </div>
+        <h2>Мои попытки</h2>
+      </div>
+      <ul class="testing-list-tests">
+        {% for item in attempts_with_progress %}
+        <li>
+          <div class="test-info">
+            <strong class="test-title">{{ item.attempt.test.title }}</strong>
+            <div class="test-meta">
+              {% if item.attempt.is_graded %}
+                {% if item.score_status == 'failed' %}
+                <span class="status-badge status-badge--failed">Не сдан</span>
+                {% elif item.score_status == 'passed' %}
+                <span class="status-badge status-badge--passed">Сдан</span>
+                {% else %}
+                <span class="status-badge status-badge--excellent">Отлично</span>
+                {% endif %}
+                <span class="meta-item">
+                  <i data-lucide="award"></i>
+                  Балл: <strong class="score-value--{{ item.score_status }}">{{ item.attempt.total_score }} / {{ item.attempt.test.max_possible_score }}</strong>
+                  <span class="score-percent--{{ item.score_status }}">({{ item.score_percent }}%)</span>
+                </span>
+              {% elif item.attempt.submitted_at %}
+                <span class="status-badge status-badge--warning">Ожидает проверки</span>
+                <span class="meta-item">Сдан {{ item.attempt.submitted_at|date:"d.m.Y H:i" }}</span>
+              {% else %}
+                <span class="status-badge status-badge--info">В процессе</span>
+                <span class="meta-item">
+                  <i data-lucide="check-circle"></i>
+                  Отвечено: <strong>{{ item.progress.attempted }}/{{ item.progress.total }}</strong>
+                </span>
+              {% endif %}
+            </div>
+          </div>
+          <div class="test-action">
+            {% if item.attempt.submitted_at %}
+            <a href="{% url 'testing:attempt_result' item.attempt.pk %}" class="btn btn-outline">
+              <i data-lucide="eye"></i>
+              Результат
+            </a>
+            {% else %}
+            <a href="{% url 'testing:take_test' item.attempt.pk %}" class="btn btn-outline">
+              <i data-lucide="edit"></i>
+              Продолжить
+            </a>
+            {% endif %}
+          </div>
+        </li>
+        {% endfor %}
+      </ul>
+    </div>
+    {% endif %}
+{% endblock %}

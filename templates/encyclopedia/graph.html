@@ -1,0 +1,235 @@
+﻿{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Граф знаний - {{ block.super }}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/encyclopedia/list.css' %}">
+<link rel="stylesheet" href="{% static 'css/encyclopedia/graph.css' %}">
+{% endblock %}
+
+{% block content %}
+<!-- Particles Canvas -->
+<canvas id="particles-canvas"></canvas>
+
+<div class="graph-page-container">
+  <!-- Background Orbs -->
+  <div class="bg-orb bg-orb--primary"></div>
+  <div class="bg-orb bg-orb--accent"></div>
+    
+  <!-- Graph Canvas & Overlays -->
+  <div class="graph-workspace">
+    
+    <!-- Top Bar for View Toggling (Center) -->
+    <div class="graph-top-bar">
+      <div class="view-toggle">
+        <a href="{% url 'encyclopedia:graph' %}" class="toggle-btn active">
+          <i data-lucide="network"></i>
+          Интерактивный граф
+        </a>
+        <a href="{% url 'encyclopedia:list' %}" class="toggle-btn">
+          <i data-lucide="list"></i>
+          Список понятий
+        </a>
+      </div>
+    </div>
+
+    <!-- Controls Overlay (Top Left) -->
+    <div class="graph-controls">
+      <button class="graph-btn" id="btn-zoom-in" title="Увеличить">+</button>
+      <button class="graph-btn" id="btn-zoom-out" title="Уменьшить">-</button>
+      <button class="graph-btn" id="btn-reset" title="Сбросить центр">⌂</button>
+    </div>
+
+    <!-- Layout Toolbar (Bottom Center) -->
+    <div class="layout-toolbar">
+      <button class="toolbar-btn active" data-layout="force">Свободный</button>
+      <button class="toolbar-btn" data-layout="tree">Иерархия</button>
+      <button class="toolbar-btn" data-layout="radial">Радиальный</button>
+    </div>
+
+    <!-- Mobile Legend Toggle Button -->
+    <button class="legend-toggle-btn" id="legend-toggle-btn" title="Показать легенду">
+      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="10"></circle>
+        <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+        <line x1="12" y1="17" x2="12.01" y2="17"></line>
+      </svg>
+    </button>
+
+    <!-- Mobile Legend Modal -->
+    <div class="legend-modal" id="legend-modal">
+      <div class="legend-modal-content">
+        <div class="legend-modal-header">
+          <span class="legend-modal-title">Легенда</span>
+          <button class="legend-modal-close" id="legend-modal-close">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+          </button>
+        </div>
+        <div class="legend-modal-body">
+          {% if is_authenticated %}
+          <div class="legend-filter-mobile">
+            <span class="switch-label">Только изученное</span>
+            <label class="switch">
+              <input type="checkbox" id="learned-filter-toggle-mobile">
+              <span class="slider"></span>
+            </label>
+          </div>
+          {% else %}
+          <div class="auth-warning-legend-mobile">
+            <span>Войдите, чтобы отслеживать прогресс</span>
+          </div>
+          {% endif %}
+          
+          <div class="legend-section">
+            <div class="legend-title">Легенда узлов</div>
+            <div class="legend-grid-mobile">
+              <div class="legend-item"><div class="legend-color legend-blue"></div>Алгоритмы</div>
+              <div class="legend-item"><div class="legend-color legend-green"></div>Параметры</div>
+              <div class="legend-item"><div class="legend-color legend-yellow"></div>Метрики расстояния</div>
+              <div class="legend-item"><div class="legend-color legend-indigo"></div>Метрики качества</div>
+              <div class="legend-item"><div class="legend-color legend-purple"></div>Применение</div>
+              <div class="legend-item"><div class="legend-color legend-pink"></div>Геометрия</div>
+              <div class="legend-item"><div class="legend-color legend-teal"></div>Масштабируемость</div>
+              <div class="legend-item"><div class="legend-color legend-rose"></div>Размер кластеров</div>
+              <div class="legend-item"><div class="legend-color legend-slate"></div>Тип вывода</div>
+              <div class="legend-item"><div class="legend-color legend-cyan"></div>Критерии и условия оценки</div>
+            </div>
+          </div>
+          
+          <div class="legend-section">
+            <div class="legend-title">Типы связей</div>
+            <div class="edge-legend-mobile">
+              <div class="edge-item">
+                <svg class="edge-line"><line x1="0" y1="1" x2="24" y2="1" stroke="#94a3b8" stroke-width="2"></line></svg>
+                <span>Является (IS_A)</span>
+              </div>
+              <div class="edge-item">
+                <svg class="edge-line"><line x1="0" y1="1" x2="24" y2="1" stroke="#ef4444" stroke-width="2" stroke-dasharray="6,6"></line></svg>
+                <span>Пререквизит (DEPENDS)</span>
+              </div>
+              <div class="edge-item">
+                <svg class="edge-line"><line x1="0" y1="1" x2="24" y2="1" stroke="#3b82f6" stroke-width="2" stroke-dasharray="2,4"></line></svg>
+                <span>Использует (USES)</span>
+              </div>
+              <div class="edge-item">
+                <svg class="edge-line"><line x1="0" y1="1" x2="24" y2="1" stroke="#f59e0b" stroke-width="2" stroke-dasharray="6,3"></line></svg>
+                <span>Расширяет (EXTENDS)</span>
+              </div>
+              <div class="edge-item">
+                <svg class="edge-line"><line x1="0" y1="1" x2="24" y2="1" stroke="#ec4899" stroke-width="2" stroke-dasharray="4,2"></line></svg>
+                <span>Частный случай (SPECIAL_CASE)</span>
+              </div>
+              <div class="edge-item">
+                <svg class="edge-line"><line x1="0" y1="1" x2="24" y2="1" stroke="#22c55e" stroke-width="2" stroke-dasharray="10,4"></line></svg>
+                <span>Рекомендуется после (RECOMMENDED_AFTER)</span>
+              </div>
+              <div class="edge-item">
+                <svg class="edge-line"><line x1="0" y1="1" x2="24" y2="1" stroke="#06b6d4" stroke-width="2" stroke-dasharray="8,3"></line></svg>
+                <span>Оценивается метрикой (EVALUATED_BY)</span>
+              </div>
+              <div class="edge-item">
+                <svg class="edge-line"><line x1="0" y1="1" x2="24" y2="1" stroke="#8b5cf6" stroke-width="2"></line></svg>
+                <span>Структурная связь</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Protege-style Legend Overlay (Bottom Left) -->
+    <div class="graph-legend">
+      {% if is_authenticated %}
+      <div class="legend-filter">
+        <span class="switch-label">Только изученное</span>
+        <label class="switch">
+          <input type="checkbox" id="learned-filter-toggle">
+          <span class="slider"></span>
+        </label>
+      </div>
+      {% else %}
+      <div class="auth-warning-legend">
+        <span>Войдите, чтобы отслеживать прогресс</span>
+      </div>
+      {% endif %}
+      
+      <div class="legend-title">Легенда узлов</div>
+      <div class="legend-grid">
+        <div class="legend-item"><div class="legend-color legend-blue"></div>Алгоритмы</div>
+        <div class="legend-item"><div class="legend-color legend-green"></div>Параметры</div>
+        <div class="legend-item"><div class="legend-color legend-yellow"></div>Метрики расстояния</div>
+        <div class="legend-item"><div class="legend-color legend-indigo"></div>Метрики качества</div>
+        <div class="legend-item"><div class="legend-color legend-purple"></div>Применение</div>
+        <div class="legend-item"><div class="legend-color legend-pink"></div>Геометрия</div>
+        <div class="legend-item"><div class="legend-color legend-teal"></div>Масштабируемость</div>
+        <div class="legend-item"><div class="legend-color legend-rose"></div>Размер кластеров</div>
+        <div class="legend-item"><div class="legend-color legend-slate"></div>Тип вывода</div>
+        <div class="legend-item"><div class="legend-color legend-cyan"></div>Критерии и условия оценки</div>
+      </div>
+      
+      <div class="edge-legend">
+        <div class="legend-title legend-title-margin">Типы связей</div>
+        <div class="edge-item">
+          <svg class="edge-line"><line x1="0" y1="1" x2="24" y2="1" stroke="#94a3b8" stroke-width="2"></line></svg>
+          <span>Является (IS_A)</span>
+        </div>
+        <div class="edge-item">
+          <svg class="edge-line"><line x1="0" y1="1" x2="24" y2="1" stroke="#ef4444" stroke-width="2" stroke-dasharray="6,6"></line></svg>
+          <span>Пререквизит (DEPENDS)</span>
+        </div>
+        <div class="edge-item">
+          <svg class="edge-line"><line x1="0" y1="1" x2="24" y2="1" stroke="#3b82f6" stroke-width="2" stroke-dasharray="2,4"></line></svg>
+          <span>Использует (USES)</span>
+        </div>
+        <div class="edge-item">
+          <svg class="edge-line"><line x1="0" y1="1" x2="24" y2="1" stroke="#f59e0b" stroke-width="2" stroke-dasharray="6,3"></line></svg>
+          <span>Расширяет (EXTENDS)</span>
+        </div>
+        <div class="edge-item">
+          <svg class="edge-line"><line x1="0" y1="1" x2="24" y2="1" stroke="#ec4899" stroke-width="2" stroke-dasharray="4,2"></line></svg>
+          <span>Частный случай (SPECIAL_CASE)</span>
+        </div>
+        <div class="edge-item">
+          <svg class="edge-line"><line x1="0" y1="1" x2="24" y2="1" stroke="#22c55e" stroke-width="2" stroke-dasharray="10,4"></line></svg>
+          <span>Рекомендуется после (RECOMMENDED_AFTER)</span>
+        </div>
+        <div class="edge-item">
+          <svg class="edge-line"><line x1="0" y1="1" x2="24" y2="1" stroke="#06b6d4" stroke-width="2" stroke-dasharray="8,3"></line></svg>
+          <span>Оценивается метрикой (EVALUATED_BY)</span>
+        </div>
+        <div class="edge-item">
+          <svg class="edge-line"><line x1="0" y1="1" x2="24" y2="1" stroke="#8b5cf6" stroke-width="2"></line></svg>
+          <span>Структурная связь</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Info Panel Backdrop for mobile -->
+    <div class="info-panel-backdrop" id="info-panel-backdrop"></div>
+
+    <!-- Main Graph Area (SVG Container) -->
+    <div class="graph-main-area">
+      <div id="ontology-graph"></div>
+    </div>
+    
+    <!-- Info Panel Overlay (Slides in from right) -->
+    <div id="graph-info-panel" class="graph-info-panel">
+      <!-- Content injected dynamically via JS on hover -->
+    </div>
+
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script id="graph-data" type="application/json">{{ graph_data|safe }}</script>
+<!-- Particles -->
+<script src="{% static 'js/core/particles.js' %}"></script>
+<!-- Локальная копия D3.js для быстрой загрузки -->
+<script src="{% static 'js/vendor/d3.min.js' %}"></script>
+<script src="{% static 'js/encyclopedia/graph.js' %}"></script>
+{% endblock %}

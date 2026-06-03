@@ -1,0 +1,192 @@
+﻿{% load static admin_urls %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}{{ site_title }}{% endblock %}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{% static 'css/vendor/project-fonts.css' %}">
+    <!-- Lucide Icons -->
+    <script src="{% static 'js/vendor/lucide.min.js' %}"></script>
+    <!-- Vue.js 3 -->
+    <script src="{% static 'js/vendor/vue.global.js' %}"></script>
+    <!-- Custom Admin Styles -->
+    <link rel="stylesheet" href="{% static 'css/admin/custom_admin.css' %}">
+    <!-- Particles -->
+    <script src="{% static 'js/core/particles.js' %}"></script>
+    {% block extrastyle %}{% endblock %}
+    {% block extrahead %}{% endblock %}
+</head>
+<body>
+    <!-- Particles Canvas -->
+    <canvas id="particles-canvas"></canvas>
+    
+    <div id="admin-app">
+        <div class="admin-wrapper">
+            <!-- Mobile Overlay -->
+            <div class="admin-sidebar-overlay" :class="{ 'active': sidebarOpen }" @click="toggleSidebar"></div>
+            
+            <!-- Sidebar -->
+            <aside class="admin-sidebar" :class="{ 'open': sidebarOpen }">
+                <div class="admin-sidebar-header">
+                    <img src="{% static 'images/logo-Photoroom.png' %}" alt="Logo" class="admin-logo">
+                    <div class="admin-brand">
+                        <span class="admin-brand-title">Clustering Trainer</span>
+                        <span class="admin-brand-subtitle">Admin Panel</span>
+                    </div>
+                </div>
+                
+                <nav class="admin-nav">
+                    <div class="admin-nav-section">
+                        <div class="admin-nav-section-title">Главная</div>
+                        <a href="{{ admin_urls.index }}" class="admin-nav-item {% if request.resolver_match.url_name == 'index' %}active{% endif %}">
+                            <i data-lucide="layout-dashboard" class="admin-nav-icon"></i>
+                            <span>Дашборд</span>
+                        </a>
+                    </div>
+                    
+                    <div class="admin-nav-section">
+                        <div class="admin-nav-section-title">Контент</div>
+                        <a href="{{ admin_urls.materials_changelist }}" class="admin-nav-item {% if 'materials/material' in request.path %}active{% endif %}">
+                            <i data-lucide="book-open" class="admin-nav-icon"></i>
+                            <span>Материалы</span>
+                            <span class="admin-nav-badge">{{ materials_count }}</span>
+                        </a>
+                        <a href="{{ admin_urls.tasks_changelist }}" class="admin-nav-item {% if 'tasks/task' in request.path %}active{% endif %}">
+                            <i data-lucide="code" class="admin-nav-icon"></i>
+                            <span>Задания</span>
+                            <span class="admin-nav-badge">{{ tasks_count }}</span>
+                        </a>
+                        <a href="{{ admin_urls.task_tags_changelist }}" class="admin-nav-item {% if 'tasks/tasktag' in request.path %}active{% endif %}">
+                            <i data-lucide="tag" class="admin-nav-icon"></i>
+                            <span>Теги заданий</span>
+                            <span class="admin-nav-badge">{{ task_tags_count }}</span>
+                        </a>
+                        <a href="{{ admin_urls.course_modules_changelist }}" class="admin-nav-item {% if 'encyclopedia/coursemodule' in request.path %}active{% endif %}">
+                            <i data-lucide="route" class="admin-nav-icon"></i>
+                            <span>Модули курса</span>
+                            <span class="admin-nav-badge">{{ course_modules_count }}</span>
+                        </a>
+                        <a href="{{ admin_urls.course_module_simulators_changelist }}" class="admin-nav-item {% if 'encyclopedia/coursemodulesimulator' in request.path %}active{% endif %}">
+                            <i data-lucide="play-square" class="admin-nav-icon"></i>
+                            <span>Ссылки на симулятор</span>
+                            <span class="admin-nav-badge">{{ course_module_simulators_count }}</span>
+                        </a>
+                    </div>
+                    
+                    <div class="admin-nav-section">
+                        <div class="admin-nav-section-title">Тестирование</div>
+                        <a href="{{ admin_urls.tests_changelist }}" class="admin-nav-item {% if 'testing/test' in request.path %}active{% endif %}">
+                            <i data-lucide="file-check" class="admin-nav-icon"></i>
+                            <span>Тесты</span>
+                            <span class="admin-nav-badge">{{ tests_count }}</span>
+                        </a>
+                        <a href="{{ admin_urls.questions_changelist }}" class="admin-nav-item {% if 'testing/question' in request.path %}active{% endif %}">
+                            <i data-lucide="help-circle" class="admin-nav-icon"></i>
+                            <span>Вопросы</span>
+                            <span class="admin-nav-badge">{{ questions_count }}</span>
+                        </a>
+                        <a href="{{ admin_urls.groups_changelist }}" class="admin-nav-item {% if 'testing/studentgroup' in request.path %}active{% endif %}">
+                            <i data-lucide="users" class="admin-nav-icon"></i>
+                            <span>Группы</span>
+                            <span class="admin-nav-badge">{{ groups_count }}</span>
+                        </a>
+                    </div>
+                    
+                    <div class="admin-nav-section">
+                        <div class="admin-nav-section-title">Энциклопедия</div>
+                        <a href="{{ admin_urls.concepts_changelist }}" class="admin-nav-item {% if 'encyclopedia/concept' in request.path %}active{% endif %}">
+                            <i data-lucide="network" class="admin-nav-icon"></i>
+                            <span>Концепты</span>
+                            <span class="admin-nav-badge">{{ concepts_count }}</span>
+                        </a>
+                        <a href="{{ admin_urls.relations_changelist }}" class="admin-nav-item {% if 'encyclopedia/conceptrelation' in request.path %}active{% endif %}">
+                            <i data-lucide="git-branch" class="admin-nav-icon"></i>
+                            <span>Связи</span>
+                            <span class="admin-nav-badge">{{ relations_count }}</span>
+                        </a>
+                    </div>
+                    
+                    <div class="admin-nav-section">
+                        <div class="admin-nav-section-title">Пользователи</div>
+                        <a href="{{ admin_urls.users_changelist }}" class="admin-nav-item {% if 'auth/user' in request.path %}active{% endif %}">
+                            <i data-lucide="user" class="admin-nav-icon"></i>
+                            <span>Пользователи</span>
+                            <span class="admin-nav-badge">{{ users_count }}</span>
+                        </a>
+                        <a href="{{ admin_urls.auth_groups_changelist }}" class="admin-nav-item {% if 'auth/group' in request.path %}active{% endif %}">
+                            <i data-lucide="users-2" class="admin-nav-icon"></i>
+                            <span>Группы</span>
+                            <span class="admin-nav-badge">{{ auth_groups_count }}</span>
+                        </a>
+                    </div>
+                </nav>
+                
+                <div class="admin-sidebar-footer">
+                    <div class="admin-user-info">
+                        <div class="admin-user-avatar">{{ user_initials }}</div>
+                        <div class="admin-user-details">
+                            <div class="admin-user-name">{{ user.first_name|default:user.username }}</div>
+                            <div class="admin-user-role">Администратор</div>
+                        </div>
+                    </div>
+                </div>
+            </aside>
+            
+            <!-- Main Content -->
+            <main class="admin-main">
+                <header class="admin-header">
+                    <div class="admin-header-actions">
+                        <button class="admin-sidebar-toggle" :class="{ 'menu-closed': !sidebarOpen }" @click="toggleSidebar" title="Открыть/закрыть меню">
+                            <span class="toggle-icon-close"><i data-lucide="panel-left-close"></i></span>
+                            <span class="toggle-icon-open"><i data-lucide="panel-left-open"></i></span>
+                        </button>
+                        <h1 class="admin-header-title">{% block page_title %}{{ title }}{% endblock %}</h1>
+                    </div>
+                    <div class="admin-header-actions">
+                        <a href="{{ site_home_url }}" class="admin-btn admin-btn-outline" target="_blank">
+                            <i data-lucide="external-link" class="icon-size-16"></i>
+                            На сайт
+                        </a>
+                        <a href="{{ admin_urls.logout }}" class="admin-btn admin-btn-outline">
+                            <i data-lucide="log-out" class="icon-size-16"></i>
+                            Выход
+                        </a>
+                    </div>
+                </header>
+                
+                <div class="admin-content">
+                    {% block content %}{% endblock %}
+                </div>
+            </main>
+        </div>
+    </div>
+    
+    <script>
+        window.adminData = {
+            userName: '{{ user.first_name|default:user.username }}',
+            urls: {
+                materials: '{{ admin_urls.materials_changelist }}',
+                tasks: '{{ admin_urls.tasks_changelist }}',
+                taskTags: '{{ admin_urls.task_tags_changelist }}',
+                courseModules: '{{ admin_urls.course_modules_changelist }}',
+                courseModuleSimulators: '{{ admin_urls.course_module_simulators_changelist }}',
+                tests: '{{ admin_urls.tests_changelist }}',
+                concepts: '{{ admin_urls.concepts_changelist }}'
+            }
+        };
+    </script>
+    <script src="{% static 'js/admin/dashboard.js' %}"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            if (window.lucide) {
+                window.lucide.createIcons();
+            }
+            if (typeof ParticlesApp !== 'undefined') {
+                new ParticlesApp('particles-canvas');
+            }
+        });
+    </script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

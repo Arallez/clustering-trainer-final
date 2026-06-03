@@ -1,0 +1,201 @@
+/* Quiz Constructor Styles - New Admin Design */
+
+/* Quiz Constructor Fieldset */
+.quiz-constructor-fieldset {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    padding: 24px;
+    margin-top: 24px;
+}
+
+.quiz-constructor-fieldset .fieldset-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #fff;
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 8px;
+}
+
+.quiz-constructor-fieldset .fieldset-help {
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 14px;
+    margin-bottom: 20px;
+}
+
+/* Quiz Question Block */
+.quiz-question-block {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 20px;
+    transition: all 0.3s ease;
+}
+
+.quiz-question-block:hover {
+    border-color: rgba(99, 102, 241, 0.3);
+    box-shadow: 0 4px 20px rgba(99, 102, 241, 0.1);
+}
+
+.quiz-question-title {
+    color: #a5b4fc;
+    font-size: 16px;
+    font-weight: 600;
+    margin: 0 0 16px 0;
+    padding-bottom: 12px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Quiz Options Table */
+.quiz-options-table {
+    width: 100%;
+    max-width: 600px;
+    border-collapse: collapse;
+    margin-bottom: 12px;
+}
+
+.quiz-options-table th {
+    text-align: left;
+    color: rgba(255, 255, 255, 0.7);
+    font-weight: 500;
+    font-size: 13px;
+    padding: 8px 12px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.quiz-options-table th:first-child {
+    width: 80px;
+}
+
+.quiz-options-table th:last-child {
+    width: 50px;
+}
+
+.quiz-options-table td {
+    padding: 8px 12px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.quiz-option-row input[type="text"] {
+    width: 100%;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 6px;
+    padding: 8px 12px;
+    color: #fff;
+    font-size: 14px;
+    transition: all 0.2s ease;
+}
+
+.quiz-option-row input[type="text"]:focus {
+    outline: none;
+    border-color: #6366f1;
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+}
+
+.quiz-option-row input[type="text"][name$="_id"] {
+    width: 60px;
+    text-align: center;
+    text-transform: lowercase;
+}
+
+/* Quiz textarea */
+.quiz-question-block textarea {
+    width: 100%;
+    max-width: 600px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 8px;
+    padding: 12px 16px;
+    color: #fff;
+    font-size: 14px;
+    font-family: 'Space Grotesk', sans-serif;
+    resize: vertical;
+    transition: all 0.2s ease;
+}
+
+.quiz-question-block textarea:focus {
+    outline: none;
+    border-color: #6366f1;
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+}
+
+.quiz-question-block textarea::placeholder {
+    color: rgba(255, 255, 255, 0.4);
+}
+
+/* Quiz correct answer input */
+.quiz-question-block input[name^="quiz_correct"] {
+    width: 100px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 6px;
+    padding: 8px 12px;
+    color: #10b981;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.quiz-question-block input[name^="quiz_correct"]:focus {
+    outline: none;
+    border-color: #10b981;
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2);
+}
+
+/* Small buttons for quiz */
+.admin-btn-sm {
+    padding: 4px 10px !important;
+    font-size: 12px !important;
+}
+
+.admin-btn-sm i {
+    width: 12px !important;
+    height: 12px !important;
+}
+
+/* Add option button styling */
+.add-quiz-option {
+    margin-top: 8px;
+}
+
+/* Quiz Questions Container */
+#quiz-questions-container {
+    margin-bottom: 16px;
+}
+
+/* Form field styling inside quiz blocks */
+.quiz-question-block .form-field {
+    margin-bottom: 16px;
+}
+
+.quiz-question-block .field-label {
+    display: block;
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 14px;
+    font-weight: 500;
+    margin-bottom: 6px;
+}
+
+.quiz-question-block .field-widget {
+    display: block;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .quiz-options-table {
+        display: block;
+        overflow-x: auto;
+    }
+    
+    .quiz-question-block {
+        padding: 16px;
+    }
+    
+    .quiz-constructor-fieldset {
+        padding: 16px;
+    }
+}

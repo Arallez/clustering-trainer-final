@@ -1,0 +1,210 @@
+﻿{% extends 'testing/base_testing.html' %}
+{% load static %}
+
+{% block title %}Создать контрольную работу{% endblock %}
+
+{% block testing_container_class %} testing-container--form{% endblock %}
+
+{% block testing_content %}
+    <!-- Page Header -->
+    <header class="page-header">
+      <h1>Создание <span class="highlight">контрольной работы</span></h1>
+    </header>
+
+    <form method="post" action="{% url 'testing:create_test' %}" class="testing-form">
+      {% csrf_token %}
+      
+      <div class="testing-card">
+        <div class="card-header">
+          <div class="card-icon">
+            <i data-lucide="clipboard-list"></i>
+          </div>
+          <h2>Основные настройки</h2>
+        </div>
+        
+        <div class="form-group">
+          <label for="id_title" class="form-label">
+            <i data-lucide="type"></i>
+            Название
+          </label>
+          <input type="text" name="title" id="id_title" class="form-input" required placeholder="Например: Итоговая по DBSCAN">
+        </div>
+        
+        <div class="form-group">
+          <label for="id_group" class="form-label">
+            <i data-lucide="users"></i>
+            Группа
+          </label>
+          <select name="group" id="id_group" class="form-input" required>
+            <option value="">— Выберите группу —</option>
+            {% for g in groups %}
+            <option value="{{ g.pk }}">{{ g.name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        
+        <div class="form-row">
+          <div class="form-group">
+            <label for="id_time_limit" class="form-label">
+              <i data-lucide="clock"></i>
+              Лимит времени (минут)
+            </label>
+            <input type="number" name="time_limit_minutes" id="id_time_limit" class="form-input" value="60" min="1" max="300">
+          </div>
+          <div class="form-group">
+            <label for="id_auto_task_score" class="form-label">
+              <i data-lucide="award"></i>
+              Баллов за автозадание по умолчанию
+            </label>
+            <input type="number" name="auto_task_score" id="id_auto_task_score" class="form-input" value="1" min="1" max="100">
+          </div>
+        </div>
+        
+        <div class="form-row">
+          <div class="form-group">
+            <label for="id_opens_at" class="form-label">
+              <i data-lucide="calendar-plus"></i>
+              Окно сдачи открывается
+            </label>
+            <input type="datetime-local" name="opens_at" id="id_opens_at" class="form-input" required>
+          </div>
+          
+          <div class="form-group">
+            <label for="id_closes_at" class="form-label">
+              <i data-lucide="calendar-check"></i>
+              Окно сдачи закрывается
+            </label>
+            <input type="datetime-local" name="closes_at" id="id_closes_at" class="form-input" required>
+          </div>
+        </div>
+      </div>
+      
+      <div class="testing-card">
+        <div class="card-header">
+          <div class="card-icon">
+            <i data-lucide="file-question"></i>
+          </div>
+          <div class="card-title-group">
+            <h2>Ручные задания</h2>
+            <p class="card-subtitle">Выберите задания из вашего банка для ручной проверки</p>
+          </div>
+        </div>
+        
+        {% if questions %}
+        <div class="tasks-checklist">
+          {% for q in questions %}
+          <div class="task-item">
+            <label class="task-checkbox">
+              <input type="checkbox" name="questions" value="{{ q.pk }}">
+              <span class="task-info">
+                <strong class="task-title">{{ q.title }}</strong>
+                <span class="task-meta">
+                  <i data-lucide="award"></i>
+                  Max: {{ q.max_score }} баллов
+                </span>
+              </span>
+            </label>
+            <a href="{% url 'testing:question_detail' q.pk %}" target="_blank" class="btn btn-outline btn-sm task-preview-btn" title="Посмотреть задание" aria-label="Посмотреть задание">
+              <i data-lucide="eye"></i>
+            </a>
+          </div>
+          {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty-state">
+          <i data-lucide="file-question"></i>
+          <p>В вашем банке пока нет заданий. Сначала создайте задания в Банке заданий.</p>
+        </div>
+        {% endif %}
+      </div>
+
+      <div class="testing-card">
+        <div class="card-header">
+          <div class="card-icon">
+            <i data-lucide="check-circle"></i>
+          </div>
+          <div class="card-title-group">
+            <h2>Автопроверяемые задания курса</h2>
+            <p class="card-subtitle">Эти задания откроются через основной интерфейс практики и будут проверяться автоматически</p>
+          </div>
+        </div>
+
+        {% if task_groups %}
+        <div class="testing-form-inline task-picker-toolbar">
+          <div class="input-wrapper">
+            <i data-lucide="search" class="input-icon"></i>
+            <input type="search" id="taskSearch" placeholder="Поиск по названию, концепту или блоку" autocomplete="off">
+          </div>
+          <select id="taskTypeFilter" class="form-input">
+            <option value="">Все типы</option>
+            <option value="code">Код</option>
+            <option value="choice">Тест</option>
+          </select>
+          <select id="taskDifficultyFilter" class="form-input">
+            <option value="">Любая сложность</option>
+            <option value="1">Novice</option>
+            <option value="2">Beginner</option>
+            <option value="3">Intermediate</option>
+          </select>
+        </div>
+
+        <div class="tasks-checklist">
+          {% for group in task_groups %}
+          <div class="task-picker-group" data-group="{{ group.title|lower }}">
+            <h3 class="module-links-title">{{ group.title }}</h3>
+            {% for task in group.tasks %}
+            <div class="task-item task-picker-item"
+                 data-title="{{ task.title|lower }}"
+                 data-group="{{ group.title|lower }}"
+                 data-type="{{ task.task_type }}"
+                 data-difficulty="{{ task.difficulty }}"
+                 data-concept="{{ task.concept.title|default:''|lower }}">
+            <label class="task-checkbox">
+              <input type="checkbox" name="tasks" value="{{ task.pk }}">
+              <span class="task-info">
+                <strong class="task-title">{{ task.title }}</strong>
+                <span class="task-meta">
+                  <i data-lucide="layers"></i>
+                  {{ task.tags.name|default:"Без блока" }}
+                  {% if task.concept %} · {{ task.concept.title }}{% endif %}
+                  · {% if task.task_type == 'choice' %}Тест{% else %}Код{% endif %}
+                </span>
+              </span>
+            </label>
+            <div class="item-actions">
+              <input type="number" name="task_score_{{ task.pk }}" value="1" min="1" max="100" class="form-input form-input--score" title="Баллы">
+              <input type="number" name="task_order_{{ task.pk }}" value="{{ forloop.counter }}" min="0" max="999" class="form-input form-input--score" title="Порядок">
+              <a href="{% url 'tasks:challenge_detail' task.slug %}" target="_blank" class="btn btn-outline btn-sm task-preview-btn" title="Посмотреть задание" aria-label="Посмотреть задание">
+                <i data-lucide="eye"></i>
+              </a>
+            </div>
+            </div>
+            {% endfor %}
+          </div>
+          {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty-state">
+          <i data-lucide="check-circle"></i>
+          <p>В основном курсе пока нет автопроверяемых заданий.</p>
+        </div>
+        {% endif %}
+      </div>
+      
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary">
+          <i data-lucide="check"></i>
+          Создать контрольную
+        </button>
+        <a href="{% url 'testing:home' %}" class="btn btn-outline">
+          <i data-lucide="x"></i>
+          Отмена
+        </a>
+      </div>
+    </form>
+{% endblock %}
+
+{% block testing_main_js %}
+<script src="{% static 'js/testing/index.js' %}"></script>
+<script src="{% static 'js/testing/create_test.js' %}?v=2"></script>
+{% endblock %}

@@ -1,0 +1,199 @@
+{% extends "admin/base_admin.html" %}
+{% load static admin_list admin_urls i18n %}
+
+{% block extrastyle %}
+<link rel="stylesheet" href="{% static 'css/admin/change_list.css' %}">
+{{ media.css }}
+{% endblock %}
+
+{% block page_title %}{{ cl.opts.verbose_name_plural|title }}{% endblock %}
+
+{% block content %}
+<!-- Toolbar -->
+<div class="change-list-toolbar">
+    {% if cl.search_fields %}
+    <form method="GET" class="toolbar-search-form">
+        <div class="toolbar-search">
+            <i data-lucide="search" class="search-icon"></i>
+            <input type="text"
+                   placeholder="{% trans 'Поиск...' %}"
+                   value="{{ cl.query }}"
+                   name="{{ search_var|default:'q' }}"
+                   class="toolbar-search-input">
+            {% if cl.query %}
+            <a href="?{{ search_var|default:'q' }}=" class="search-clear" title="{% trans 'Очистить поиск' %}">
+                <i data-lucide="x" class="icon-size-14"></i>
+            </a>
+            {% endif %}
+        </div>
+    </form>
+    {% else %}
+    <div></div>
+    {% endif %}
+    
+    <div class="toolbar-actions">
+        {% if has_add_permission %}
+        <a href="{% url cl.opts|admin_urlname:'add' %}{% if is_popup %}?_popup=1{% endif %}" class="admin-btn admin-btn-primary">
+            <i data-lucide="plus" class="icon-size-16"></i>
+            {% trans 'Добавить' %}
+        </a>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Filters -->
+{% if cl.filter_specs %}
+<div class="change-list-filters collapsed" id="filters-panel">
+    <div class="filters-header" onclick="toggleFilters()">
+        <h3 class="filters-title">
+            <i data-lucide="filter" class="icon-size-16"></i>
+            {% trans 'Фильтры' %}
+            <i data-lucide="chevron-down" class="filters-chevron icon-size-16"></i>
+        </h3>
+        <a href="?" class="admin-btn admin-btn-sm admin-btn-outline" onclick="event.stopPropagation()">
+            <i data-lucide="x" class="icon-size-14"></i>
+            {% trans 'Сбросить' %}
+        </a>
+    </div>
+    <div class="filters-body">
+        {% for spec in cl.filter_specs %}
+        <div class="filter-group">
+            <h4 class="filter-group-title">{{ spec.title }}</h4>
+            <div class="filter-options">
+                {% admin_list_filter cl spec %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+
+<!-- Actions Bar (fixed at bottom when items selected) -->
+<div class="change-list-actions-bar" id="actions-bar">
+    <div class="actions-bar-inner">
+        <span class="actions-selected-count">
+            <span id="selected-count">0</span> {% trans 'выбрано' %}
+        </span>
+        <select name="action" id="action-select" class="actions-select">
+            {% if action_form %}
+                {% for value, label in action_form.fields.action.choices %}
+                    <option value="{{ value }}"{% if not value %} selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+            {% else %}
+                <option value="">{% trans 'Выберите действие...' %}</option>
+            {% endif %}
+        </select>
+        <button type="button" class="admin-btn admin-btn-primary admin-btn-sm" onclick="submitAction(event)">
+            <i data-lucide="play" class="icon-size-14"></i>
+            {% trans 'Выполнить' %}
+        </button>
+    </div>
+</div>
+
+<!-- Results -->
+<div class="change-list-results">
+    <form id="changelist-form" method="post" novalidate>
+        {% csrf_token %}
+        <input type="hidden" name="action" value="" id="action-input">
+        <input type="hidden" name="select_across" value="0" id="select-across">
+        
+        {% if cl.result_count %}
+        <div class="results-table-wrapper">
+            {% result_list cl %}
+        </div>
+        {% else %}
+        <div class="empty-state-wrapper">
+            <div class="empty-state">
+                <i data-lucide="inbox" class="icon-size-48 icon-muted"></i>
+                <p>Нет записей</p>
+            </div>
+        </div>
+        {% endif %}
+        
+        <!-- Pagination -->
+        {% if cl.paginator.count > 1 %}
+        <div class="pagination-wrapper">
+            <div class="pagination-info">
+                Показано {{ cl.result_count }} из {{ cl.full_result_count }}
+            </div>
+            <div class="pagination-controls">
+                {% pagination cl %}
+            </div>
+        </div>
+        {% endif %}
+    </form>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+{{ media.js }}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    if (window.lucide) {
+        window.lucide.createIcons();
+    }
+    
+    // Track checkbox changes
+    const checkboxes = document.querySelectorAll('input[type="checkbox"][name="_selected_action"]');
+    const actionsBar = document.getElementById('actions-bar');
+    const selectedCount = document.getElementById('selected-count');
+    
+    function updateActionsBar() {
+        if (!actionsBar) return;
+        
+        const checkedCount = document.querySelectorAll('input[type="checkbox"][name="_selected_action"]:checked').length;
+        
+        if (checkedCount > 0) {
+            actionsBar.classList.add('visible');
+            if (selectedCount) {
+                selectedCount.textContent = checkedCount;
+            }
+        } else {
+            actionsBar.classList.remove('visible');
+        }
+    }
+    
+    checkboxes.forEach(function(checkbox) {
+        checkbox.addEventListener('change', updateActionsBar);
+    });
+    
+    // Select all checkbox
+    const selectAll = document.querySelector('input[type="checkbox"][name="select"]');
+    if (selectAll) {
+        selectAll.addEventListener('change', function() {
+            checkboxes.forEach(function(checkbox) {
+                checkbox.checked = selectAll.checked;
+            });
+            updateActionsBar();
+        });
+    }
+});
+
+function toggleFilters() {
+    const panel = document.getElementById('filters-panel');
+    if (panel) {
+        panel.classList.toggle('collapsed');
+    }
+}
+
+function submitAction(event) {
+    const actionSelect = document.getElementById('action-select');
+    const actionInput = document.getElementById('action-input');
+    
+    if (!actionSelect || !actionSelect.value) {
+        event.preventDefault();
+        alert('Выберите действие');
+        return false;
+    }
+    
+    if (actionInput) {
+        actionInput.value = actionSelect.value;
+    }
+    
+    const form = document.getElementById('changelist-form');
+    if (form) {
+        form.submit();
+    }
+}
+</script>
+{% endblock %}

@@ -1,0 +1,292 @@
+/* =========================================
+   TESTING MODALS - Matching Main Design System
+   ========================================= */
+
+/* Modal Overlay */
+.testing-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s ease;
+}
+
+.testing-modal-overlay.active {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* Modal Content */
+.testing-modal-content {
+  background: rgba(28, 25, 23, 0.95);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--border-subtle);
+  border-radius: 16px;
+  padding: 1.5rem;
+  max-width: 480px;
+  width: calc(100% - 2rem);
+  transform: scale(0.9);
+  transition: transform 0.3s ease;
+}
+
+.testing-modal-overlay.active .testing-modal-content {
+  transform: scale(1);
+}
+
+/* Modal Title */
+.testing-modal-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--danger);
+  margin-bottom: 1rem;
+}
+
+.testing-modal-title i {
+  width: 24px;
+  height: 24px;
+}
+
+/* Modal Text */
+.testing-modal-text {
+  color: var(--text-secondary);
+  line-height: 1.6;
+  margin-bottom: 1.5rem;
+}
+
+.testing-modal-text strong {
+  color: var(--text-primary);
+}
+
+/* Modal Warning */
+.testing-modal-warning {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 1rem;
+  padding: 0.75rem;
+  background: rgba(245, 158, 11, 0.1);
+  border: 1px solid rgba(245, 158, 11, 0.2);
+  border-radius: 8px;
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.testing-modal-warning,
+.testing-modal-warning span,
+.testing-modal-warning strong {
+  color: #f59e0b !important;
+}
+
+.testing-modal-warning i {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  color: #f59e0b;
+}
+
+/* Modal Actions */
+.testing-modal-actions {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: flex-end;
+}
+
+.testing-modal-actions .btn {
+  min-width: 100px;
+}
+
+/* =========================================
+   LIST ITEMS (for teacher pages)
+   ========================================= */
+.testing-list-item {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem;
+  background: rgba(12, 10, 9, 0.3);
+  border-radius: 10px;
+  margin-bottom: 0.75rem;
+  transition: background 0.2s ease;
+}
+
+.testing-list-item:hover {
+  background: rgba(12, 10, 9, 0.5);
+}
+
+.testing-list-item:last-child {
+  margin-bottom: 0;
+}
+
+.item-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.item-title {
+  display: block;
+  color: var(--text-primary);
+  font-size: 1rem;
+  line-height: 1.35;
+  margin-bottom: 0.25rem;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.item-group {
+  display: inline-block;
+  color: var(--primary-400);
+  font-size: 0.85rem;
+  margin-bottom: 0.5rem;
+}
+
+.item-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: center;
+  margin-top: 0.5rem;
+}
+
+.meta-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.file-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  width: fit-content;
+  padding: 0.35rem 0.65rem;
+  border: 1px solid rgba(99, 102, 241, 0.28);
+  border-radius: 8px;
+  background: rgba(99, 102, 241, 0.08);
+  color: var(--primary-300);
+  font-size: 0.82rem;
+  font-weight: 600;
+  line-height: 1;
+  text-decoration: none;
+  transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+}
+
+.file-link:hover {
+  border-color: rgba(99, 102, 241, 0.55);
+  background: rgba(99, 102, 241, 0.15);
+  color: var(--text-primary);
+}
+
+.file-link i {
+  width: 14px;
+  height: 14px;
+  color: currentColor;
+  flex-shrink: 0;
+}
+
+.file-link--inline {
+  margin-left: 0.35rem;
+}
+
+.item-actions {
+  display: flex;
+  gap: 0.45rem;
+  justify-content: flex-end;
+  flex-wrap: nowrap;
+  flex-shrink: 0;
+}
+
+.testing-list-item .item-actions form {
+  display: inline-flex;
+  margin: 0;
+}
+
+.testing-list-item .item-actions .btn {
+  width: 46px;
+  min-width: 46px;
+  height: 46px;
+  min-height: 46px;
+  padding: 0;
+  gap: 0;
+  border-radius: 10px;
+  box-sizing: border-box;
+  font-size: 0;
+  line-height: 1;
+}
+
+.testing-list-item .item-actions .btn i,
+.testing-list-item .item-actions .btn svg {
+  width: 19px;
+  height: 19px;
+  flex-shrink: 0;
+}
+
+/* Card Actions */
+.card-actions {
+  margin-bottom: 1rem;
+}
+
+/* Danger Button */
+.btn-danger {
+  background: linear-gradient(135deg, var(--danger), #dc2626);
+  color: white;
+  border: none;
+}
+
+.btn-danger:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 20px rgba(239, 68, 68, 0.4);
+}
+
+.btn-outline.btn-danger {
+  background: transparent;
+  border: 1px solid var(--danger);
+  color: var(--danger);
+}
+
+.btn-outline.btn-danger:hover {
+  background: rgba(239, 68, 68, 0.1);
+  color: var(--danger);
+}
+
+/* =========================================
+   RESPONSIVE
+   ========================================= */
+@media (max-width: 768px) {
+  .testing-modal-content {
+    padding: 1.25rem;
+  }
+  
+  .testing-modal-actions {
+    flex-direction: column;
+  }
+  
+  .testing-modal-actions .btn {
+    width: 100%;
+  }
+  
+  .testing-list-item {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .item-actions {
+    width: auto;
+    margin-top: 0.75rem;
+  }
+  
+  .testing-list-item .item-actions .btn {
+    flex: 0 0 46px;
+  }
+}

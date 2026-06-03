@@ -1,0 +1,232 @@
+{% extends "admin/base_admin.html" %}
+
+{% block page_title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="admin-dashboard">
+    <section class="admin-stats-section">
+        <h2 class="admin-section-title">Общая статистика</h2>
+        <div class="admin-stats-grid">
+            <div class="admin-stat-card">
+                <div class="admin-stat-header">
+                    <div class="admin-stat-icon primary">
+                        <i data-lucide="book-open" class="icon-size-24"></i>
+                    </div>
+                </div>
+                <div class="admin-stat-value">{{ materials_count }}</div>
+                <div class="admin-stat-label">Материалов</div>
+            </div>
+            <div class="admin-stat-card">
+                <div class="admin-stat-header">
+                    <div class="admin-stat-icon accent">
+                        <i data-lucide="code" class="icon-size-24"></i>
+                    </div>
+                </div>
+                <div class="admin-stat-value">{{ tasks_count }}</div>
+                <div class="admin-stat-label">Заданий</div>
+            </div>
+            <div class="admin-stat-card">
+                <div class="admin-stat-header">
+                    <div class="admin-stat-icon warning">
+                        <i data-lucide="file-check" class="icon-size-24"></i>
+                    </div>
+                </div>
+                <div class="admin-stat-value">{{ tests_count }}</div>
+                <div class="admin-stat-label">Тестов</div>
+            </div>
+            <div class="admin-stat-card">
+                <div class="admin-stat-header">
+                    <div class="admin-stat-icon success">
+                        <i data-lucide="network" class="icon-size-24"></i>
+                    </div>
+                </div>
+                <div class="admin-stat-value">{{ concepts_count }}</div>
+                <div class="admin-stat-label">Концептов</div>
+            </div>
+            <div class="admin-stat-card">
+                <div class="admin-stat-header">
+                    <div class="admin-stat-icon primary">
+                        <i data-lucide="route" class="icon-size-24"></i>
+                    </div>
+                </div>
+                <div class="admin-stat-value">{{ course_modules_count }}</div>
+                <div class="admin-stat-label">Модулей курса</div>
+            </div>
+        </div>
+    </section>
+
+    <section class="admin-modules-section">
+        <div class="admin-section-header">
+            <h2 class="admin-section-title">Модули управления</h2>
+            <span class="admin-section-hint">Выберите раздел для работы</span>
+        </div>
+        <div class="admin-modules-grid">
+            <a href="{{ admin_urls.materials_changelist }}" class="admin-module-card">
+                <div class="admin-module-header">
+                    <div class="admin-module-icon materials">
+                        <i data-lucide="book-open" class="icon-size-24"></i>
+                    </div>
+                    <h3 class="admin-module-title">Материалы</h3>
+                </div>
+                <p class="admin-module-description">Учебные материалы и статьи по кластеризации данных</p>
+                <div class="admin-module-footer">
+                    <span class="admin-module-count">{{ materials_count }} записей</span>
+                    <span class="admin-module-action">
+                        Открыть
+                        <i data-lucide="arrow-right" class="icon-size-14"></i>
+                    </span>
+                </div>
+            </a>
+
+            <a href="{{ admin_urls.tasks_changelist }}" class="admin-module-card">
+                <div class="admin-module-header">
+                    <div class="admin-module-icon tasks">
+                        <i data-lucide="code" class="icon-size-24"></i>
+                    </div>
+                    <h3 class="admin-module-title">Задания</h3>
+                </div>
+                <p class="admin-module-description">Задания для практической работы студентов</p>
+                <div class="admin-module-footer">
+                    <span class="admin-module-count">{{ tasks_count }} записей</span>
+                    <span class="admin-module-action">
+                        Открыть
+                        <i data-lucide="arrow-right" class="icon-size-14"></i>
+                    </span>
+                </div>
+            </a>
+
+            <a href="{{ admin_urls.task_tags_changelist }}" class="admin-module-card">
+                <div class="admin-module-header">
+                    <div class="admin-module-icon tasks">
+                        <i data-lucide="tag" class="icon-size-24"></i>
+                    </div>
+                    <h3 class="admin-module-title">Теги заданий</h3>
+                </div>
+                <p class="admin-module-description">Категории и теги для организации заданий</p>
+                <div class="admin-module-footer">
+                    <span class="admin-module-count">{{ task_tags_count }} тегов</span>
+                    <span class="admin-module-action">
+                        Открыть
+                        <i data-lucide="arrow-right" class="icon-size-14"></i>
+                    </span>
+                </div>
+            </a>
+
+            <a href="{{ admin_urls.course_modules_changelist }}" class="admin-module-card">
+                <div class="admin-module-header">
+                    <div class="admin-module-icon encyclopedia">
+                        <i data-lucide="route" class="icon-size-24"></i>
+                    </div>
+                    <h3 class="admin-module-title">Модули курса</h3>
+                </div>
+                <p class="admin-module-description">Учебный маршрут: понятия, материалы, задания и симуляторные шаги</p>
+                <div class="admin-module-footer">
+                    <span class="admin-module-count">{{ course_modules_count }} модулей</span>
+                    <span class="admin-module-action">
+                        Открыть
+                        <i data-lucide="arrow-right" class="icon-size-14"></i>
+                    </span>
+                </div>
+            </a>
+
+            <a href="{{ admin_urls.course_module_simulators_changelist }}" class="admin-module-card">
+                <div class="admin-module-header">
+                    <div class="admin-module-icon simulator">
+                        <i data-lucide="play-square" class="icon-size-24"></i>
+                    </div>
+                    <h3 class="admin-module-title">Ссылки на симулятор</h3>
+                </div>
+                <p class="admin-module-description">Какие алгоритмы симулятора показывать внутри модулей курса</p>
+                <div class="admin-module-footer">
+                    <span class="admin-module-count">{{ course_module_simulators_count }} ссылок</span>
+                    <span class="admin-module-action">
+                        Открыть
+                        <i data-lucide="arrow-right" class="icon-size-14"></i>
+                    </span>
+                </div>
+            </a>
+
+            <a href="{{ admin_urls.tests_changelist }}" class="admin-module-card">
+                <div class="admin-module-header">
+                    <div class="admin-module-icon testing">
+                        <i data-lucide="file-check" class="icon-size-24"></i>
+                    </div>
+                    <h3 class="admin-module-title">Тестирование</h3>
+                </div>
+                <p class="admin-module-description">Управление тестами и вопросами для проверки знаний</p>
+                <div class="admin-module-footer">
+                    <span class="admin-module-count">{{ tests_count }} тестов</span>
+                    <span class="admin-module-action">
+                        Открыть
+                        <i data-lucide="arrow-right" class="icon-size-14"></i>
+                    </span>
+                </div>
+            </a>
+
+            <a href="{{ admin_urls.concepts_changelist }}" class="admin-module-card">
+                <div class="admin-module-header">
+                    <div class="admin-module-icon encyclopedia">
+                        <i data-lucide="network" class="icon-size-24"></i>
+                    </div>
+                    <h3 class="admin-module-title">Энциклопедия</h3>
+                </div>
+                <p class="admin-module-description">Концепты и связи между ними в онтологии</p>
+                <div class="admin-module-footer">
+                    <span class="admin-module-count">{{ concepts_count }} концептов</span>
+                    <span class="admin-module-action">
+                        Открыть
+                        <i data-lucide="arrow-right" class="icon-size-14"></i>
+                    </span>
+                </div>
+            </a>
+
+            <a href="{{ admin_urls.users_changelist }}" class="admin-module-card">
+                <div class="admin-module-header">
+                    <div class="admin-module-icon users">
+                        <i data-lucide="users" class="icon-size-24"></i>
+                    </div>
+                    <h3 class="admin-module-title">Пользователи</h3>
+                </div>
+                <p class="admin-module-description">Управление учётными записями пользователей системы</p>
+                <div class="admin-module-footer">
+                    <span class="admin-module-count">{{ users_count }} пользователей</span>
+                    <span class="admin-module-action">
+                        Открыть
+                        <i data-lucide="arrow-right" class="icon-size-14"></i>
+                    </span>
+                </div>
+            </a>
+        </div>
+    </section>
+
+    <section class="admin-quick-actions">
+        <h2 class="admin-section-title">Быстрые действия</h2>
+        <div class="admin-actions-grid">
+            <a href="{{ admin_urls.materials_add }}" class="admin-action-btn">
+                <i data-lucide="plus" class="icon-size-18"></i>
+                Добавить материал
+            </a>
+            <a href="{{ admin_urls.tasks_add }}" class="admin-action-btn">
+                <i data-lucide="plus" class="icon-size-18"></i>
+                Создать задание
+            </a>
+            <a href="{{ admin_urls.tests_add }}" class="admin-action-btn">
+                <i data-lucide="plus" class="icon-size-18"></i>
+                Создать тест
+            </a>
+            <a href="{{ admin_urls.course_modules_add }}" class="admin-action-btn">
+                <i data-lucide="plus" class="icon-size-18"></i>
+                Добавить модуль курса
+            </a>
+            <a href="{{ admin_urls.course_module_simulators_add }}" class="admin-action-btn">
+                <i data-lucide="plus" class="icon-size-18"></i>
+                Добавить ссылку на симулятор
+            </a>
+            <a href="{{ site_home_url }}" class="admin-action-btn secondary" target="_blank">
+                <i data-lucide="external-link" class="icon-size-18"></i>
+                Открыть сайт
+            </a>
+        </div>
+    </section>
+</div>
+{% endblock %}

@@ -1,0 +1,128 @@
+﻿{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Clustering Trainer — интерактивное пособие по кластеризации{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/core/home.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="home">
+  <!-- Background Orbs -->
+  <div class="bg-orb bg-orb--primary"></div>
+  <div class="bg-orb bg-orb--accent"></div>
+  
+  <!-- Particles Canvas -->
+  <canvas id="particles-canvas"></canvas>
+
+  <main class="home-main">
+    <section class="hero">
+      <h1 class="hero-title">
+        Интерактивное пособие<br>по <span class="highlight">кластеризации</span>
+      </h1>
+      
+      <p class="hero-text">
+        Материалы, симулятор, база знаний и практикум в единой учебной среде.
+      </p>
+      
+      <div class="hero-actions">
+        <a class="btn btn-primary" href="{% url 'simulator:index' %}">
+          <i data-lucide="play"></i>
+          Открыть симулятор
+        </a>
+        <a class="btn btn-secondary" href="{% url 'tasks:task_list' %}">
+          <i data-lucide="code-2"></i>
+          Практикум
+        </a>
+      </div>
+    </section>
+
+    <section class="features">
+      <!-- Верхний ряд: 2 карточки по центру -->
+      <div class="features-row features-row--top">
+        <a class="feature" href="{% url 'simulator:index' %}">
+          <div class="feature-icon">
+            <i data-lucide="scatter-chart"></i>
+          </div>
+          <h3 class="feature-title">Симулятор</h3>
+          <p class="feature-text">
+            Пошаговая визуализация алгоритмов: K-Means, DBSCAN, иерархическая кластеризация и другие.
+          </p>
+          <span class="feature-arrow">
+            Перейти
+            <i data-lucide="arrow-right"></i>
+          </span>
+        </a>
+        
+        <a class="feature" href="{% url 'tasks:task_list' %}">
+          <div class="feature-icon">
+            <i data-lucide="terminal"></i>
+          </div>
+          <h3 class="feature-title">Практика</h3>
+          <p class="feature-text">
+            Решение задач на Python с автоматической проверкой результата.
+          </p>
+          <span class="feature-arrow">
+            Перейти
+            <i data-lucide="arrow-right"></i>
+          </span>
+        </a>
+      </div>
+      
+      <!-- Нижний ряд: 3 карточки -->
+      <div class="features-row features-row--bottom">
+        <a class="feature" href="{% url 'materials:materials_list' %}">
+          <div class="feature-icon">
+            <i data-lucide="book-open"></i>
+          </div>
+          <h3 class="feature-title">Материалы</h3>
+          <p class="feature-text">
+            Теория, математические основы и описания алгоритмов кластерного анализа.
+          </p>
+          <span class="feature-arrow">
+            Перейти
+            <i data-lucide="arrow-right"></i>
+          </span>
+        </a>
+        
+        <a class="feature" href="{% url 'encyclopedia:graph' %}">
+          <div class="feature-icon">
+            <i data-lucide="network"></i>
+          </div>
+          <h3 class="feature-title">База знаний</h3>
+          <p class="feature-text">
+            Онтологический справочник: граф понятий, метрик и зависимостей между алгоритмами.
+          </p>
+          <span class="feature-arrow">
+            Перейти
+            <i data-lucide="arrow-right"></i>
+          </span>
+        </a>
+        
+        <a class="feature" href="{% url 'testing:home' %}">
+          <div class="feature-icon">
+            <i data-lucide="clipboard-check"></i>
+          </div>
+          <h3 class="feature-title">Тестирование</h3>
+          <p class="feature-text">
+            Проходи задания от преподавателя и отслеживай свой прогресс в обучении.
+          </p>
+          <span class="feature-arrow">
+            Перейти
+            <i data-lucide="arrow-right"></i>
+          </span>
+        </a>
+      </div>
+    </section>
+  </main>
+
+  <footer class="home-footer">
+    <div class="footer-text">Дипломный проект — интерактивное пособие по методам кластеризации</div>
+  </footer>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/core/particles.js' %}"></script>
+{% endblock %}

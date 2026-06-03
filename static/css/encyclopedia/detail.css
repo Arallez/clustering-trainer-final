@@ -1,0 +1,270 @@
+/* =========================================
+   ENCYCLOPEDIA DETAIL - Matching Design System
+   ========================================= */
+
+.encyclopedia-page {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+}
+
+.encyclopedia-container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 2rem 3rem 4rem;
+    width: 100%;
+    position: relative;
+    z-index: 1;
+}
+
+/* =========================================
+   BREADCRUMBS
+   ========================================= */
+.breadcrumbs {
+    margin-bottom: 2rem;
+}
+
+.breadcrumbs a {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--text-muted);
+    text-decoration: none;
+    font-size: 0.9rem;
+    font-weight: 500;
+    padding: 0.5rem 1rem;
+    background: rgba(28, 25, 23, 0.5);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid var(--border-subtle);
+    border-radius: 8px;
+    transition: all 0.2s ease;
+}
+
+.breadcrumbs a:hover {
+    color: var(--text-primary);
+    background: rgba(28, 25, 23, 0.7);
+    border-color: var(--border-default);
+}
+
+.breadcrumbs a i {
+    width: 16px;
+    height: 16px;
+}
+
+/* =========================================
+   CONCEPT DETAIL CARD
+   ========================================= */
+.concept-detail-card {
+    background: rgba(28, 25, 23, 0.6);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid var(--border-subtle);
+    border-radius: 20px;
+    padding: 2.5rem;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Gradient border effect */
+.concept-detail-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 20px;
+    padding: 1px;
+    background: linear-gradient(135deg, rgba(99, 102, 241, 0.3), rgba(20, 184, 166, 0.3));
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+}
+
+/* =========================================
+   CONCEPT HEADER
+   ========================================= */
+.concept-header {
+    margin-bottom: 2rem;
+}
+
+.concept-type-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.35rem 0.85rem;
+    border-radius: 100px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 1rem;
+    background: rgba(99, 102, 241, 0.15);
+    color: var(--primary-400);
+    border: 1px solid rgba(99, 102, 241, 0.3);
+}
+
+.concept-header h1 {
+    font-size: clamp(1.75rem, 4vw, 2.5rem);
+    font-weight: 700;
+    margin: 0;
+    color: var(--text-primary);
+    letter-spacing: -0.02em;
+    line-height: 1.2;
+}
+
+/* =========================================
+   CONCEPT BODY
+   ========================================= */
+.concept-body {
+    font-size: 1.05rem;
+    line-height: 1.8;
+    color: var(--text-secondary);
+    margin-bottom: 3rem;
+    padding-bottom: 2rem;
+    border-bottom: 1px solid var(--border-subtle);
+}
+
+.concept-body.markdown-content {
+    opacity: 0;
+    transition: opacity 0.1s ease-in-out;
+}
+
+/* Markdown content styling */
+.concept-body.markdown-content h1,
+.concept-body.markdown-content h2,
+.concept-body.markdown-content h3 {
+    color: var(--text-primary);
+    margin-top: 1.5rem;
+    margin-bottom: 0.75rem;
+}
+
+.concept-body.markdown-content h2 {
+    font-size: 1.4rem;
+}
+
+.concept-body.markdown-content h3 {
+    font-size: 1.2rem;
+}
+
+.concept-body.markdown-content p {
+    margin-bottom: 1rem;
+}
+
+.concept-body.markdown-content ul,
+.concept-body.markdown-content ol {
+    margin-bottom: 1rem;
+    padding-left: 1.5rem;
+}
+
+.concept-body.markdown-content li {
+    margin-bottom: 0.5rem;
+}
+
+.concept-body.markdown-content code {
+    font-family: var(--font-mono);
+    background: rgba(0, 0, 0, 0.3);
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.9em;
+}
+
+.concept-body.markdown-content pre {
+    background: rgba(0, 0, 0, 0.4);
+    border: 1px solid var(--border-subtle);
+    border-radius: 8px;
+    padding: 1rem;
+    overflow-x: auto;
+    margin-bottom: 1rem;
+}
+
+.concept-body.markdown-content pre code {
+    background: transparent;
+    padding: 0;
+}
+
+/* =========================================
+   ONTOLOGY RELATIONS
+   ========================================= */
+.ontology-relations {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+}
+
+.relation-column h3 {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--border-subtle);
+}
+
+.relation-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.relation-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    background: rgba(0, 0, 0, 0.2);
+    padding: 0.875rem 1rem;
+    border-radius: 10px;
+    text-decoration: none;
+    color: var(--text-primary);
+    border: 1px solid var(--border-subtle);
+    transition: all 0.2s ease;
+}
+
+.relation-item:hover {
+    border-color: var(--primary-500);
+    background: rgba(99, 102, 241, 0.1);
+    transform: translateX(4px);
+}
+
+.relation-type {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--primary-400);
+    background: rgba(99, 102, 241, 0.15);
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-family: var(--font-mono);
+}
+
+.relation-target {
+    font-weight: 500;
+    flex: 1;
+}
+
+.relation-type-tag {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    font-style: italic;
+}
+
+/* =========================================
+   RESPONSIVE
+   ========================================= */
+@media (max-width: 768px) {
+    .encyclopedia-container {
+        padding: 1.5rem 1rem 2rem;
+    }
+    
+    .concept-detail-card {
+        padding: 1.5rem;
+    }
+    
+    .ontology-relations {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+}

@@ -1,0 +1,135 @@
+﻿{% extends "admin/change_form.html" %}
+{% load static i18n %}
+
+{% block extrahead %}
+{{ block.super }}
+<link rel="stylesheet" type="text/css" href="{% static 'css/admin/tasks.css' %}">
+{% endblock %}
+
+{% block after_field_sets %}
+{{ block.super }}
+
+{% if show_quiz_constructor %}
+<div class="form-fieldset quiz-constructor-fieldset">
+    <h3 class="fieldset-title">
+        <i data-lucide="help-circle" class="icon-size-18"></i>
+        📝 Конструктор теста (для типа «Выбор ответа»)
+    </h3>
+    <p class="fieldset-help">Можно добавить несколько вопросов. У каждого вопроса — свои варианты ответа. ID варианта (a, b, c…) задаёт правильный ответ для этого вопроса.</p>
+
+    <div id="quiz-questions-container">
+        {% for q in quiz_questions %}
+        <div class="quiz-question-block" data-question-index="{{ forloop.counter0 }}">
+            <h4 class="quiz-question-title">Вопрос {{ forloop.counter }}</h4>
+            <div class="form-field">
+                <label class="field-label">Текст вопроса:</label>
+                <div class="field-widget">
+                    <textarea name="quiz_question_{{ forloop.counter0 }}" rows="2">{{ q.question }}</textarea>
+                </div>
+            </div>
+            <div class="form-field">
+                <label class="field-label">Варианты ответа:</label>
+                <div class="field-widget">
+                    <table class="quiz-options-table">
+                        <thead>
+                            <tr><th>ID</th><th>Текст</th><th></th></tr>
+                        </thead>
+                        <tbody class="quiz-options-tbody" data-question-index="{{ forloop.counter0 }}">
+                            {% for opt in q.options %}
+                            <tr class="quiz-option-row">
+                                <td><input type="text" name="quiz_option_{{ forloop.parentloop.counter0 }}_{{ forloop.counter0 }}_id" value="{{ opt.id }}" maxlength="10"></td>
+                                <td><input type="text" name="quiz_option_{{ forloop.parentloop.counter0 }}_{{ forloop.counter0 }}_text" value="{{ opt.text }}"></td>
+                                <td><button type="button" class="admin-btn admin-btn-danger admin-btn-sm remove-quiz-option">×</button></td>
+                            </tr>
+                            {% empty %}
+                            <tr class="quiz-option-row">
+                                <td><input type="text" name="quiz_option_{{ forloop.parentloop.counter0 }}_0_id" value="a" maxlength="10"></td>
+                                <td><input type="text" name="quiz_option_{{ forloop.parentloop.counter0 }}_0_text" value=""></td>
+                                <td><button type="button" class="admin-btn admin-btn-danger admin-btn-sm remove-quiz-option">×</button></td>
+                            </tr>
+                            <tr class="quiz-option-row">
+                                <td><input type="text" name="quiz_option_{{ forloop.parentloop.counter0 }}_1_id" value="b" maxlength="10"></td>
+                                <td><input type="text" name="quiz_option_{{ forloop.parentloop.counter0 }}_1_text" value=""></td>
+                                <td><button type="button" class="admin-btn admin-btn-danger admin-btn-sm remove-quiz-option">×</button></td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    <button type="button" class="admin-btn admin-btn-outline admin-btn-sm add-quiz-option" data-question-index="{{ forloop.counter0 }}">
+                        <i data-lucide="plus" class="icon-size-14"></i>
+                        Добавить вариант
+                    </button>
+                </div>
+            </div>
+            <div class="form-field">
+                <label class="field-label">Правильный ответ (ID варианта):</label>
+                <div class="field-widget">
+                    <input type="text" name="quiz_correct_{{ forloop.counter0 }}" value="{{ q.correct }}" maxlength="10">
+                </div>
+            </div>
+            <button type="button" class="admin-btn admin-btn-danger remove-quiz-question">
+                <i data-lucide="trash-2" class="icon-size-14"></i>
+                Удалить вопрос
+            </button>
+        </div>
+        {% empty %}
+        <div class="quiz-question-block" data-question-index="0">
+            <h4 class="quiz-question-title">Вопрос 1</h4>
+            <div class="form-field">
+                <label class="field-label">Текст вопроса:</label>
+                <div class="field-widget">
+                    <textarea name="quiz_question_0" rows="2"></textarea>
+                </div>
+            </div>
+            <div class="form-field">
+                <label class="field-label">Варианты ответа:</label>
+                <div class="field-widget">
+                    <table class="quiz-options-table">
+                        <thead>
+                            <tr><th>ID</th><th>Текст</th><th></th></tr>
+                        </thead>
+                        <tbody class="quiz-options-tbody" data-question-index="0">
+                            <tr class="quiz-option-row">
+                                <td><input type="text" name="quiz_option_0_0_id" value="a" maxlength="10"></td>
+                                <td><input type="text" name="quiz_option_0_0_text" value=""></td>
+                                <td><button type="button" class="admin-btn admin-btn-danger admin-btn-sm remove-quiz-option">×</button></td>
+                            </tr>
+                            <tr class="quiz-option-row">
+                                <td><input type="text" name="quiz_option_0_1_id" value="b" maxlength="10"></td>
+                                <td><input type="text" name="quiz_option_0_1_text" value=""></td>
+                                <td><button type="button" class="admin-btn admin-btn-danger admin-btn-sm remove-quiz-option">×</button></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <button type="button" class="admin-btn admin-btn-outline admin-btn-sm add-quiz-option" data-question-index="0">
+                        <i data-lucide="plus" class="icon-size-14"></i>
+                        Добавить вариант
+                    </button>
+                </div>
+            </div>
+            <div class="form-field">
+                <label class="field-label">Правильный ответ (ID):</label>
+                <div class="field-widget">
+                    <input type="text" name="quiz_correct_0" value="" maxlength="10">
+                </div>
+            </div>
+            <button type="button" class="admin-btn admin-btn-danger remove-quiz-question">
+                <i data-lucide="trash-2" class="icon-size-14"></i>
+                Удалить вопрос
+            </button>
+        </div>
+        {% endfor %}
+    </div>
+
+    <button type="button" id="add-quiz-question" class="admin-btn admin-btn-outline">
+        <i data-lucide="plus-circle" class="icon-size-16"></i>
+        Добавить вопрос
+    </button>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block extra_js %}
+{{ block.super }}
+<script src="{% static 'js/admin/tasks.js' %}"></script>
+{% endblock %}

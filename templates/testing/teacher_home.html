@@ -1,0 +1,274 @@
+{% extends 'testing/base_testing.html' %}
+
+{% block title %}Тестирование — Преподаватель{% endblock %}
+
+{% block testing_content %}
+    <!-- Page Header -->
+    <header class="page-header">
+      <h1>Панель <span class="highlight">преподавателя</span></h1>
+    </header>
+
+    <!-- Create Group Card -->
+    <div class="testing-card">
+      <div class="card-header">
+        <div class="card-icon">
+          <i data-lucide="users"></i>
+        </div>
+        <div class="card-title-group">
+          <h2>Создать группу</h2>
+          <p class="card-subtitle">Создайте группу и передайте код студентам</p>
+        </div>
+      </div>
+      <form action="{% url 'testing:create_group' %}" method="post" class="testing-form-inline">
+        {% csrf_token %}
+        <div class="input-wrapper">
+          <i data-lucide="folder-plus" class="input-icon"></i>
+          <input type="text" name="name" placeholder="Название группы" required>
+        </div>
+        <button type="submit" class="btn btn-primary">
+          <i data-lucide="plus"></i>
+          Создать
+        </button>
+      </form>
+    </div>
+
+    <!-- My Groups Card -->
+    <div class="testing-card">
+      <div class="card-header">
+        <div class="card-icon">
+          <i data-lucide="folder"></i>
+        </div>
+        <h2>Мои группы</h2>
+      </div>
+      
+      {% if groups %}
+      {% for group in groups %}
+      <div class="testing-list-item">
+        <div class="item-info">
+          <strong class="item-title">{{ group.name }}</strong>
+          <div class="item-meta">
+            <span class="meta-item">
+              <i data-lucide="key"></i>
+              Код: <code class="testing-code">{{ group.join_code }}</code>
+            </span>
+            <span class="meta-item">
+              <i data-lucide="users"></i>
+              Участников: {{ group.members.count }}
+            </span>
+          </div>
+        </div>
+        <div class="item-actions">
+          <a href="{% url 'testing:group_detail' group.pk %}" class="btn btn-outline" title="Подробнее" aria-label="Подробнее">
+            <i data-lucide="eye"></i>
+            Подробнее
+          </a>
+          <form action="{% url 'testing:delete_group' group.pk %}" method="post" class="delete-group-form" data-group-name="{{ group.name }}">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-outline btn-danger" title="Удалить" aria-label="Удалить">
+              <i data-lucide="trash-2"></i>
+              Удалить
+            </button>
+          </form>
+        </div>
+      </div>
+      {% endfor %}
+      {% else %}
+      <div class="empty-state">
+        <i data-lucide="users"></i>
+        <p>Пока нет групп. Создайте группу выше и передайте код студентам.</p>
+      </div>
+      {% endif %}
+    </div>
+
+    <!-- Question Bank Card -->
+    <div class="testing-card">
+      <div class="card-header">
+        <div class="card-icon">
+          <i data-lucide="file-question"></i>
+        </div>
+        <div class="card-title-group">
+          <h2>Банк заданий</h2>
+          <p class="card-subtitle">Создавайте задания для контрольных работ</p>
+        </div>
+      </div>
+      
+      <div class="card-actions">
+        <a href="{% url 'testing:create_question' %}" class="btn btn-primary">
+          <i data-lucide="plus"></i>
+          Создать задание
+        </a>
+      </div>
+      
+      {% if questions %}
+      {% for q in questions %}
+      <div class="testing-list-item">
+        <div class="item-info">
+          <strong class="item-title">{{ q.title }}</strong>
+          <div class="item-meta">
+            <span class="meta-item">
+              <i data-lucide="award"></i>
+              Max балл: {{ q.max_score }}
+            </span>
+            {% if q.attached_file %}
+            <span class="meta-item">
+              <a href="{{ q.attached_file.url }}" target="_blank" class="file-link">
+                <i data-lucide="paperclip"></i>
+                Файл
+              </a>
+            </span>
+            {% endif %}
+          </div>
+        </div>
+        <div class="item-actions">
+          <a href="{% url 'testing:question_detail' q.pk %}" target="_blank" class="btn btn-outline" title="Посмотреть" aria-label="Посмотреть">
+            <i data-lucide="eye"></i>
+            Посмотреть
+          </a>
+          <form action="{% url 'testing:delete_question' q.pk %}" method="post" class="delete-question-form" data-question-name="{{ q.title }}">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-outline btn-danger" title="Удалить" aria-label="Удалить">
+              <i data-lucide="trash-2"></i>
+              Удалить
+            </button>
+          </form>
+        </div>
+      </div>
+      {% endfor %}
+      {% else %}
+      <div class="empty-state">
+        <i data-lucide="file-question"></i>
+        <p>В банке пока нет заданий. Создайте задания, чтобы добавлять их в контрольные работы.</p>
+      </div>
+      {% endif %}
+    </div>
+
+    <!-- Tests Card -->
+    <div class="testing-card">
+      <div class="card-header">
+        <div class="card-icon">
+          <i data-lucide="clipboard-list"></i>
+        </div>
+        <div class="card-title-group">
+          <h2>Контрольные работы</h2>
+          <p class="card-subtitle">Управление тестами и проверка работ</p>
+        </div>
+      </div>
+      
+      <div class="card-actions">
+        <a href="{% url 'testing:create_test' %}" class="btn btn-primary">
+          <i data-lucide="plus"></i>
+          Назначить контрольную
+        </a>
+      </div>
+      
+      {% if tests %}
+      {% for test in tests %}
+      <div class="testing-list-item">
+        <div class="item-info">
+          <strong class="item-title">{{ test.title }}</strong>
+          <span class="item-group">{{ test.group.name }}</span>
+          <div class="item-meta">
+            <span class="meta-item">
+              <i data-lucide="file-question"></i>
+              Ручных: {{ test.questions.count }}
+            </span>
+            <span class="meta-item">
+              <i data-lucide="check-circle"></i>
+              Авто: {{ test.test_tasks.count }}
+            </span>
+            <span class="meta-item">
+              <i data-lucide="award"></i>
+              Макс. балл: {{ test.max_possible_score }}
+            </span>
+            <span class="meta-item">
+              <i data-lucide="clock"></i>
+              {{ test.time_limit_minutes }} мин.
+            </span>
+          </div>
+          <div class="item-meta">
+            <span class="meta-item">
+              <i data-lucide="calendar"></i>
+              {{ test.opens_at|date:"d.m.Y H:i" }} — {{ test.closes_at|date:"d.m.Y H:i" }}
+            </span>
+          </div>
+        </div>
+        <div class="item-actions">
+          <a href="{% url 'testing:test_results' test.pk %}" class="btn btn-outline" title="Результаты" aria-label="Результаты">
+            <i data-lucide="check-square"></i>
+            Результаты
+          </a>
+          <form action="{% url 'testing:delete_test' test.pk %}" method="post" class="delete-test-form" data-test-name="{{ test.title }}">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-outline btn-danger" title="Удалить" aria-label="Удалить">
+              <i data-lucide="trash-2"></i>
+              Удалить
+            </button>
+          </form>
+        </div>
+      </div>
+      {% endfor %}
+      {% else %}
+      <div class="empty-state">
+        <i data-lucide="clipboard-list"></i>
+        <p>Нет назначенных работ. Чтобы собрать контрольную, сначала добавьте задания в банк выше.</p>
+      </div>
+      {% endif %}
+    </div>
+
+<!-- Modal for Delete Group Confirmation -->
+<div id="deleteGroupModal" class="testing-modal-overlay">
+  <div class="testing-modal-content">
+    <div class="testing-modal-title">
+      <i data-lucide="alert-triangle"></i>
+      Удаление группы
+    </div>
+    <div class="testing-modal-text">
+      Вы уверены, что хотите удалить группу <strong id="deleteGroupName"></strong>?<br>
+      Все тесты и результаты студентов, привязанные к этой группе, будут безвозвратно удалены.
+    </div>
+    <div class="testing-modal-actions">
+      <button type="button" id="cancelDeleteBtn" class="btn btn-outline">Отмена</button>
+      <button type="button" id="confirmDeleteBtn" class="btn btn-danger">Удалить навсегда</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal for Delete Question Confirmation -->
+<div id="deleteQuestionModal" class="testing-modal-overlay">
+  <div class="testing-modal-content">
+    <div class="testing-modal-title">
+      <i data-lucide="alert-triangle"></i>
+      Удаление задания
+    </div>
+    <div class="testing-modal-text">
+      Вы уверены, что хотите удалить задание <strong id="deleteQuestionName"></strong>?
+      <div class="testing-modal-warning">
+        <i data-lucide="alert-circle"></i>
+        Если это задание используется в уже созданных тестах, оно пропадет оттуда. Также будут удалены все ответы студентов на это задание.
+      </div>
+    </div>
+    <div class="testing-modal-actions">
+      <button type="button" id="cancelDeleteQuestionBtn" class="btn btn-outline">Отмена</button>
+      <button type="button" id="confirmDeleteQuestionBtn" class="btn btn-danger">Удалить задание</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal for Delete Test Confirmation -->
+<div id="deleteTestModal" class="testing-modal-overlay">
+  <div class="testing-modal-content">
+    <div class="testing-modal-title">
+      <i data-lucide="alert-triangle"></i>
+      Удаление теста
+    </div>
+    <div class="testing-modal-text">
+      Вы уверены, что хотите удалить тест <strong id="deleteTestName"></strong>?<br>
+      Все попытки студентов и результаты будут безвозвратно удалены.
+    </div>
+    <div class="testing-modal-actions">
+      <button type="button" id="cancelDeleteTestBtn" class="btn btn-outline">Отмена</button>
+      <button type="button" id="confirmDeleteTestBtn" class="btn btn-danger">Удалить навсегда</button>
+    </div>
+  </div>
+</div>
+{% endblock %}

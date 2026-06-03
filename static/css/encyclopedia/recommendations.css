@@ -1,0 +1,612 @@
+.recommendations-page {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+}
+
+.recommendations-main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 3rem 2rem 4rem;
+    max-width: 1180px;
+    margin: 0 auto;
+    width: 100%;
+    position: relative;
+    z-index: 1;
+}
+
+.page-header {
+    text-align: center;
+    margin-bottom: 3rem;
+}
+
+.page-header h1 {
+    font-size: clamp(2rem, 5vw, 2.8rem);
+    font-weight: 700;
+    margin: 0 0 0.75rem;
+    letter-spacing: -0.02em;
+}
+
+.page-header h1 .highlight {
+    background: linear-gradient(135deg, var(--primary-400), var(--accent-400));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.page-subtitle {
+    color: var(--text-muted);
+    font-size: 1.05rem;
+    margin: 0 auto;
+    max-width: 720px;
+}
+
+.progress-card,
+.focus-card,
+.recommendation-column,
+.module-card {
+    background: rgba(28, 25, 23, 0.58);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid var(--border-subtle);
+    border-radius: 18px;
+}
+
+.progress-card {
+    padding: 1.5rem 2rem;
+    margin-bottom: 1.5rem;
+}
+
+.card-title {
+    font-size: 1.15rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0 0 1.25rem;
+}
+
+.progress-wrapper {
+    margin-bottom: 1.5rem;
+    position: relative;
+}
+
+.progress-container {
+    background: var(--bg-muted);
+    border-radius: 12px;
+    height: 28px;
+    width: 100%;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.progress-bar {
+    background: linear-gradient(90deg, var(--primary-500), var(--accent-500));
+    height: 100%;
+    border-radius: 12px 0 0 12px;
+    transition: width 0.8s ease;
+}
+
+.progress-text {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: #fff;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
+}
+
+.stats-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 1rem;
+}
+
+.stat-item {
+    padding: 1rem;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 12px;
+    border: 1px solid var(--border-subtle);
+    text-align: center;
+}
+
+.stat-item h3 {
+    margin: 0 0 0.25rem;
+    font-size: 1.75rem;
+    font-weight: 700;
+}
+
+.stat-item span,
+.progress-note,
+.column-subtitle,
+.section-heading p,
+.module-summary,
+.module-subtitle {
+    color: var(--text-muted);
+}
+
+.progress-note {
+    margin: 1rem 0 0;
+    font-size: 0.88rem;
+    line-height: 1.5;
+}
+
+.text-success { color: var(--success) !important; }
+.text-primary { color: var(--primary-400) !important; }
+.text-secondary { color: var(--text-muted) !important; }
+
+.focus-card {
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.focus-card__header,
+.module-card__header {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    align-items: flex-start;
+}
+
+.focus-card__eyebrow,
+.module-order {
+    display: inline-block;
+    margin-bottom: 0.35rem;
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--accent-400);
+}
+
+.focus-card h2,
+.section-heading h2,
+.module-card h3 {
+    margin: 0;
+    color: var(--text-primary);
+}
+
+.focus-card p {
+    margin: 0.45rem 0 0;
+    color: var(--text-muted);
+    line-height: 1.6;
+}
+
+.module-status {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.4rem 0.8rem;
+    border-radius: 999px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.status-available {
+    background: rgba(59, 130, 246, 0.15);
+    color: #93c5fd;
+    border: 1px solid rgba(59, 130, 246, 0.35);
+}
+
+.status-progress {
+    background: rgba(245, 158, 11, 0.16);
+    color: #fcd34d;
+    border: 1px solid rgba(245, 158, 11, 0.35);
+}
+
+.status-completed {
+    background: rgba(16, 185, 129, 0.15);
+    color: #86efac;
+    border: 1px solid rgba(16, 185, 129, 0.35);
+}
+
+.status-planned {
+    background: rgba(168, 85, 247, 0.14);
+    color: #d8b4fe;
+    border: 1px solid rgba(168, 85, 247, 0.28);
+}
+
+.focus-card__grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-top: 1.25rem;
+}
+
+.focus-panel {
+    padding: 1rem 1.1rem;
+    background: rgba(0, 0, 0, 0.16);
+    border: 1px solid var(--border-subtle);
+    border-radius: 14px;
+}
+
+.focus-panel h3,
+.module-block h4 {
+    margin: 0 0 0.75rem;
+    color: var(--text-primary);
+    font-size: 0.98rem;
+}
+
+.focus-list,
+.module-highlights {
+    margin: 0;
+    padding-left: 1.1rem;
+    color: var(--text-secondary);
+    line-height: 1.55;
+}
+
+.focus-actions {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    margin-top: 1.25rem;
+}
+
+.module-demo-flow {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    margin-top: 1.35rem;
+}
+
+.module-demo-step {
+    display: flex;
+    gap: 0.9rem;
+    padding: 1rem;
+    min-width: 0;
+    background: rgba(0, 0, 0, 0.2);
+    border: 1px solid var(--border-subtle);
+    border-radius: 14px;
+}
+
+.module-demo-step__num {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 2rem;
+    width: 2rem;
+    height: 2rem;
+    border-radius: 999px;
+    color: var(--bg-base);
+    background: linear-gradient(135deg, var(--accent-400), var(--primary-400));
+    font-weight: 800;
+}
+
+.module-demo-step h3 {
+    margin: 0 0 0.35rem;
+    color: var(--text-primary);
+    font-size: 0.98rem;
+}
+
+.module-demo-step p {
+    margin: 0;
+    color: var(--text-muted);
+    font-size: 0.88rem;
+    line-height: 1.5;
+}
+
+.module-demo-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.45rem;
+    margin-top: 0.8rem;
+}
+
+.module-demo-links a {
+    display: inline-flex;
+    align-items: center;
+    max-width: 100%;
+    padding: 0.35rem 0.6rem;
+    border-radius: 999px;
+    border: 1px solid rgba(99, 102, 241, 0.22);
+    background: rgba(99, 102, 241, 0.08);
+    color: var(--primary-300);
+    text-decoration: none;
+    font-size: 0.78rem;
+    line-height: 1.25;
+    overflow-wrap: anywhere;
+}
+
+.module-demo-links a:hover {
+    border-color: rgba(99, 102, 241, 0.42);
+    background: rgba(99, 102, 241, 0.14);
+}
+
+.recommendations-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    align-items: stretch;
+    margin-bottom: 2rem;
+}
+
+.recommendation-column {
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+}
+
+.column-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin: 0 0 0.25rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.column-title i {
+    width: 20px;
+    height: 20px;
+}
+
+.column-title--primary {
+    color: var(--primary-400);
+}
+
+.column-title--warning {
+    color: var(--warning);
+}
+
+.recommendation-list,
+.module-links {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.rec-item,
+.module-link {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.95rem 1.1rem;
+    background: rgba(0, 0, 0, 0.18);
+    border: 1px solid var(--border-subtle);
+    border-radius: 12px;
+    text-decoration: none;
+    color: inherit;
+    transition: all 0.2s ease;
+}
+
+.rec-item:hover,
+.module-link:hover {
+    border-color: var(--primary-500);
+    background: rgba(99, 102, 241, 0.08);
+    transform: translateY(-2px);
+}
+
+.rec-content h6 {
+    margin: 0 0 0.25rem;
+    font-size: 1rem;
+    color: var(--text-primary);
+}
+
+.rec-content small {
+    color: var(--text-muted);
+}
+
+.rec-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.4rem 0.85rem;
+    border-radius: 100px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+}
+
+.badge-primary {
+    background: rgba(99, 102, 241, 0.15);
+    color: var(--primary-400);
+    border: 1px solid rgba(99, 102, 241, 0.3);
+}
+
+.badge-warning {
+    background: rgba(245, 158, 11, 0.15);
+    color: var(--warning);
+    border: 1px solid rgba(245, 158, 11, 0.3);
+}
+
+.rec-alert {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    padding: 2rem 1.5rem;
+    background: rgba(0, 0, 0, 0.15);
+    border: 1px dashed var(--border-subtle);
+    border-radius: 12px;
+    flex: 1;
+    text-align: center;
+}
+
+.rec-alert i {
+    width: 32px;
+    height: 32px;
+    color: var(--text-muted);
+    opacity: 0.7;
+}
+
+.rec-alert p {
+    margin: 0;
+    color: var(--text-muted);
+    line-height: 1.5;
+}
+
+.modules-section {
+    margin-top: 0.5rem;
+}
+
+.section-heading {
+    margin-bottom: 1.25rem;
+}
+
+.modules-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1.25rem;
+}
+
+.module-card {
+    padding: 1.35rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.module-subtitle {
+    margin: 0.35rem 0 0;
+    font-size: 0.9rem;
+}
+
+.module-summary {
+    margin: 0;
+    line-height: 1.6;
+}
+
+.module-progress {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.module-progress__bar {
+    flex: 1;
+    height: 10px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.08);
+    overflow: hidden;
+}
+
+.module-progress__bar span {
+    display: block;
+    height: 100%;
+    border-radius: inherit;
+    background: linear-gradient(90deg, var(--primary-500), var(--accent-500));
+}
+
+.module-progress__text {
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.module-stats {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.module-chip {
+    padding: 0.3rem 0.7rem;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid var(--border-subtle);
+    color: var(--text-secondary);
+    font-size: 0.8rem;
+}
+
+.module-block {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.module-link {
+    justify-content: space-between;
+    color: var(--text-primary);
+}
+
+.module-link--done {
+    border-color: rgba(16, 185, 129, 0.28);
+    background: rgba(16, 185, 129, 0.08);
+}
+
+.module-link--seen {
+    border-color: rgba(59, 130, 246, 0.24);
+    background: rgba(59, 130, 246, 0.07);
+}
+
+.module-link__text {
+    min-width: 0;
+    line-height: 1.35;
+    overflow-wrap: anywhere;
+}
+
+.module-link-status {
+    flex: 0 0 auto;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.25rem 0.55rem;
+    border-radius: 999px;
+    border: 1px solid rgba(148, 163, 184, 0.24);
+    background: rgba(148, 163, 184, 0.08);
+    color: var(--text-muted);
+    font-size: 0.72rem;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.module-link-status--seen {
+    border-color: rgba(59, 130, 246, 0.3);
+    background: rgba(59, 130, 246, 0.12);
+    color: #93c5fd;
+}
+
+.module-link-status--done {
+    border-color: rgba(16, 185, 129, 0.32);
+    background: rgba(16, 185, 129, 0.14);
+    color: #86efac;
+}
+
+.center-action {
+    text-align: center;
+    margin-top: 2rem;
+    display: flex;
+    justify-content: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+}
+
+.center-action .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+@media (max-width: 900px) {
+    .stats-row,
+    .focus-card__grid,
+    .recommendations-grid,
+    .modules-grid,
+    .module-demo-flow {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 768px) {
+    .recommendations-main {
+        padding: 2rem 1.25rem 2.5rem;
+    }
+
+    .progress-card,
+    .focus-card,
+    .recommendation-column,
+    .module-card {
+        padding: 1.2rem;
+    }
+
+    .focus-card__header,
+    .module-card__header {
+        flex-direction: column;
+    }
+}

@@ -1,0 +1,209 @@
+{% extends 'testing/base_testing.html' %}
+
+{% block title %}Проверка: {{ attempt.user.get_full_name|default:attempt.user.username }}{% endblock %}
+
+{% block testing_pre_js %}
+{% include 'includes/markdown_scripts.html' %}
+{% endblock %}
+
+{% block testing_content %}
+    <!-- Page Header -->
+    <header class="page-header">
+      <div class="breadcrumbs">
+        <a href="{% url 'testing:test_results' attempt.test.id %}">
+          <i data-lucide="arrow-left"></i>
+          Назад к списку работ
+        </a>
+      </div>
+      <h1>Проверка работы</h1>
+    </header>
+
+    <!-- Attempt Info Card -->
+    <div class="testing-card">
+      <div class="card-header">
+        <div class="card-icon">
+          <i data-lucide="user"></i>
+        </div>
+        <h2>Информация о попытке</h2>
+      </div>
+      
+      <div class="info-grid">
+        <div class="info-item">
+          <span class="info-label">
+            <i data-lucide="clipboard-list"></i>
+            Тест
+          </span>
+          <span class="info-value">{{ attempt.test.title }}</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">
+            <i data-lucide="user"></i>
+            Студент
+          </span>
+          <span class="info-value">{{ attempt.user.get_full_name|default:attempt.user.username }} (@{{ attempt.user.username }})</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">
+            <i data-lucide="play"></i>
+            Начато
+          </span>
+          <span class="info-value">{{ attempt.started_at|date:"d.m.Y H:i" }}</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">
+            <i data-lucide="check-circle"></i>
+            Сдано
+          </span>
+          <span class="info-value">
+            {% if attempt.submitted_at %}
+            {{ attempt.submitted_at|date:"d.m.Y H:i" }}
+            {% else %}
+            <span class="status-badge status-badge--past">Не сдано</span>
+            {% endif %}
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Grading Form -->
+    <form method="post" class="grading-form">
+      {% csrf_token %}
+      
+      {% for ans in answers %}
+      <div class="grading-card">
+        <div class="grading-header">
+          <div class="grading-number">{{ forloop.counter }}</div>
+          <div class="grading-title-group">
+            <h3 class="grading-title">{{ ans.question.title }}</h3>
+            <span class="grading-max-score">
+              <i data-lucide="award"></i>
+              Макс: {{ ans.question.max_score }} баллов
+            </span>
+          </div>
+        </div>
+        
+        <div class="grading-question markdown-content">
+          <span class="section-label">Условие задачи:</span>
+          {{ ans.question.content }}
+        </div>
+        
+        <div class="grading-answer">
+          <span class="section-label">
+            <i data-lucide="message-square"></i>
+            Ответ студента:
+          </span>
+          
+          {% if ans.text_answer %}
+          <div class="answer-text">
+            <pre>{{ ans.text_answer }}</pre>
+          </div>
+          {% endif %}
+          
+          {% if ans.file_answer %}
+          <div class="answer-file">
+            <a href="{{ ans.file_answer.url }}" target="_blank" class="btn btn-outline">
+              <i data-lucide="download"></i>
+              Скачать файл ответа
+            </a>
+          </div>
+          {% endif %}
+
+          {% if not ans.text_answer and not ans.file_answer %}
+          <div class="answer-empty">
+            <i data-lucide="alert-circle"></i>
+            Студент не предоставил ответ на это задание.
+          </div>
+          {% endif %}
+        </div>
+        
+        <div class="grading-inputs">
+          <div class="score-input">
+            <label class="form-label">
+              <i data-lucide="award"></i>
+              Оценка (баллы)
+            </label>
+            <input type="number" name="score_{{ ans.id }}" min="0" max="{{ ans.question.max_score }}" value="{{ ans.score|default:'' }}" placeholder="0">
+          </div>
+          <div class="feedback-input">
+            <label class="form-label">
+              <i data-lucide="message-circle"></i>
+              Комментарий (увидит студент)
+            </label>
+            <textarea name="feedback_{{ ans.id }}" placeholder="Напишите обратную связь по этой задаче...">{{ ans.feedback|default:'' }}</textarea>
+          </div>
+        </div>
+      </div>
+      {% empty %}
+      <div class="testing-card">
+        <div class="empty-state">
+          <i data-lucide="file-x"></i>
+          <p>Студент не дал ни одного ответа.</p>
+        </div>
+      </div>
+      {% endfor %}
+
+      {% if auto_task_attempts %}
+      <div class="testing-card">
+        <div class="card-header">
+          <div class="card-icon">
+            <i data-lucide="check-circle"></i>
+          </div>
+          <div class="card-title-group">
+            <h2>Автопроверяемые задания</h2>
+            <p class="card-subtitle">Баллы начисляются автоматически по весу каждого задания</p>
+          </div>
+        </div>
+
+        <ul class="testing-list-tests">
+          {% for task_attempt in auto_task_attempts %}
+          <li>
+            <div class="test-info">
+              <strong class="test-title">{{ task_attempt.task.title }}</strong>
+              <div class="test-meta">
+                {% if task_attempt.is_correct %}
+                <span class="status-badge status-badge--success">Решено</span>
+                <span class="meta-item">{{ task_attempt.test_score }} / {{ task_attempt.test_score }} балл.</span>
+                {% else %}
+                <span class="status-badge status-badge--warning">Неверная попытка</span>
+                <span class="meta-item">0 / {{ task_attempt.test_score }} балл.</span>
+                {% endif %}
+              </div>
+            </div>
+            <div class="test-action">
+              <a href="{% url 'tasks:challenge_detail' task_attempt.task.slug %}" target="_blank" class="btn btn-outline btn-sm">
+                <i data-lucide="eye"></i>
+                Условие
+              </a>
+            </div>
+          </li>
+          {% endfor %}
+        </ul>
+      </div>
+      {% endif %}
+
+      <!-- Final Section -->
+      <div class="testing-card">
+        <div class="card-header">
+          <div class="card-icon">
+            <i data-lucide="check-square"></i>
+          </div>
+          <h2>Общий итог</h2>
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label">
+            <i data-lucide="file-text"></i>
+            Общий комментарий ко всей работе
+          </label>
+          <textarea name="teacher_comment" rows="4" class="form-textarea" placeholder="Напишите общий вывод по контрольной работе...">{{ attempt.teacher_comment|default:'' }}</textarea>
+        </div>
+        
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primary">
+            <i data-lucide="check"></i>
+            Сохранить оценки и завершить проверку
+          </button>
+        </div>
+      </div>
+    </form>
+{% endblock %}

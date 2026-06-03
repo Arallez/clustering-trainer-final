@@ -1,0 +1,88 @@
+﻿{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Материалы по кластеризации{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/materials/index.css' %}?v=2.2">
+{% endblock %}
+
+{% block content %}
+<!-- Particles Canvas -->
+<canvas id="particles-canvas"></canvas>
+
+<div class="materials-page">
+    <!-- Background Orbs -->
+    <div class="bg-orb bg-orb--primary"></div>
+    <div class="bg-orb bg-orb--accent"></div>
+
+      <div class="page-header">
+        <h1>Материалы по <span class="highlight">кластеризации</span></h1>
+      </div>
+
+    {% if materials %}
+    <!-- Search -->
+    <div class="controls-container">
+        <div class="search-container">
+            <span class="search-icon">
+                <i data-lucide="search"></i>
+            </span>
+            <input type="text" id="materialSearch" class="search-input" placeholder="Поиск по материалам..." autofocus>
+        </div>
+    </div>
+
+    <!-- Materials Grid -->
+    <div class="materials-grid" id="materialsContainer">
+        {% for material in materials %}
+        <a href="{% url 'materials:material_detail' material.slug %}" class="material-card"
+           data-title="{{ material.title|lower|escape }}">
+            
+            <div class="card-header">
+                <h3 class="card-title">{{ material.title }}</h3>
+                <div class="card-badges">
+                    <span class="card-badge">Теория</span>
+                    {% if material.is_completed %}
+                    <span class="card-badge card-badge--success">Изучено</span>
+                    {% elif material.is_opened %}
+                    <span class="card-badge card-badge--progress">Просмотрено</span>
+                    {% endif %}
+                </div>
+            </div>
+            
+            {% if material.concept %}
+            <div class="card-concept">{{ material.concept.name|default:material.concept.uri }}</div>
+            {% endif %}
+            
+            <div class="card-meta">
+                <span class="meta-item">
+                    <i data-lucide="book-open"></i>
+                    {% if material.is_completed %}Открыть повторно{% else %}Читать{% endif %}
+                </span>
+                <span class="meta-item meta-item-end">→</span>
+            </div>
+        </a>
+        {% endfor %}
+        
+        <div id="noResults" class="empty-state">
+            <div class="empty-icon"><i data-lucide="search-x"></i></div>
+            <h3>Ничего не найдено</h3>
+            <p>Попробуйте изменить поисковый запрос</p>
+        </div>
+    </div>
+
+    {% else %}
+    <div class="materials-grid">
+        <div class="empty-state">
+            <div class="empty-icon"><i data-lucide="book-open"></i></div>
+            <h3>Материалы не добавлены</h3>
+            <p>Зайдите в админку для добавления учебных материалов</p>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/core/particles.js' %}"></script>
+<script src="{% static 'js/materials/list.js' %}"></script>
+{% endblock %}

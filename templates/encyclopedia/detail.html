@@ -1,0 +1,92 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ concept.title }} | База Знаний{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/encyclopedia/detail.css' %}">
+<link rel="stylesheet" href="{% static 'css/encyclopedia/papers_island.css' %}?v=47">
+{% endblock %}
+
+{% block content %}
+<!-- Particles Canvas -->
+<canvas id="particles-canvas"></canvas>
+
+<div class="encyclopedia-page">
+  <!-- Background Orbs -->
+  <div class="bg-orb bg-orb--primary"></div>
+  <div class="bg-orb bg-orb--accent"></div>
+
+  <div class="encyclopedia-container">
+    <div class="breadcrumbs">
+      <a href="{% url 'encyclopedia:list' %}">
+        <i data-lucide="arrow-left"></i>
+        Назад к списку
+      </a>
+    </div>
+
+    <article class="concept-detail-card">
+      <header class="concept-header">
+        <div class="concept-type-badge">
+          {% if 'Algorithm' in concept.uri %}Алгоритм
+          {% elif 'Metric' in concept.uri %}Метрика
+          {% elif 'Param' in concept.uri %}Параметр
+          {% else %}Понятие{% endif %}
+        </div>
+        <h1>{{ concept.title }}</h1>
+      </header>
+
+      <div class="concept-body markdown-content">
+        {{ concept.description }}
+      </div>
+
+      <div class="ontology-relations">
+        {% if relations_out %}
+        <div class="relation-column">
+          <h3>Использует / Требует</h3>
+          <div class="relation-list">
+            {% for rel in relations_out %}
+            <a href="{% url 'encyclopedia:detail' rel.target.pk %}" class="relation-item">
+              <span class="relation-type">{{ rel.get_relation_type_display }}</span>
+              <span class="relation-target">{{ rel.target.title }}</span>
+            </a>
+            {% endfor %}
+          </div>
+        </div>
+        {% endif %}
+
+        {% if relations_in %}
+        <div class="relation-column">
+          <h3>Используется в</h3>
+          <div class="relation-list">
+            {% for rel in relations_in %}
+            <a href="{% url 'encyclopedia:detail' rel.source.pk %}" class="relation-item">
+              <span class="relation-target">{{ rel.source.title }}</span>
+              <span class="relation-type-tag">как {{ rel.get_relation_type_display }}</span>
+            </a>
+            {% endfor %}
+          </div>
+        </div>
+        {% endif %}
+      </div>
+    </article>
+
+    <div id="papers-island"
+         data-concept-id="{{ concept.id }}"
+         data-api-url="{% url 'encyclopedia:concept_articles_api' concept.id %}"
+         data-query="{{ concept.title|escape }}"
+         data-description="{{ concept.description|default:''|truncatechars:400|striptags|escape }}"
+    ></div>
+  </div>
+</div>
+{% endblock %}
+
+{% block markdown_js %}
+    {% include 'includes/markdown_scripts.html' %}
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/core/particles.js' %}"></script>
+<script src="{% static 'js/vendor/vue.global.js' %}"></script>
+<script type="module" src="{% static 'js/encyclopedia/papers_island.js' %}?v=47"></script>
+{% endblock %}

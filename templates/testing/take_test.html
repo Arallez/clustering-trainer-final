@@ -1,0 +1,190 @@
+﻿{% extends 'testing/base_testing.html' %}
+{% load static %}
+
+{% block title %}Тест: {{ test.title }}{% endblock %}
+
+{% block testing_pre_js %}
+{% include 'includes/markdown_scripts.html' %}
+{% endblock %}
+
+{% block testing_main_js %}
+<script src="{% static 'js/testing/take_test.js' %}"></script>
+{% endblock %}
+
+{% block testing_content %}
+    <!-- Page Header -->
+    <header class="page-header">
+      <h1>{{ test.title }}</h1>
+      <p class="page-header__subtitle">Группа: {{ test.group.name }}</p>
+    </header>
+    
+    <!-- Progress Bar -->
+    <div class="testing-progress">
+      <div class="progress-info">
+        <span>Выполните задания ниже</span>
+        <span class="timer-wrapper">
+          <i data-lucide="clock"></i>
+          Осталось: <strong id="timer" class="timer" data-ends-at="{{ ends_at|date:'c' }}">--:--:--</strong>
+        </span>
+      </div>
+    </div>
+
+    <!-- Test Form -->
+    <form method="post" enctype="multipart/form-data" id="test-form">
+      {% csrf_token %}
+      
+      {% for q in questions %}
+      <div class="question-card">
+        <div class="question-header">
+          <div class="question-number">{{ forloop.counter }}</div>
+          <div class="question-title-group">
+            <h2 class="question-title">{{ q.title }}</h2>
+            <span class="question-score">
+              <i data-lucide="award"></i>
+              Макс. балл: {{ q.max_score }}
+            </span>
+          </div>
+        </div>
+        
+        <div class="question-content markdown-content">
+          {{ q.content }}
+        </div>
+        
+        {% if q.attached_file %}
+        <div class="question-attachment">
+          <a href="{{ q.attached_file.url }}" target="_blank" class="file-link">
+            <i data-lucide="paperclip"></i>
+            Скачать материал к заданию
+          </a>
+        </div>
+        {% endif %}
+        
+        <div class="answer-area">
+          <label class="answer-label">
+            <i data-lucide="edit-3"></i>
+            Ваш ответ (текст/код):
+          </label>
+          
+          <textarea name="q_{{ q.id }}_text" placeholder="Введите ваш текстовый ответ или вставьте код сюда...">{% for ans in existing_answers.values %}{% if ans.question_id == q.id %}{{ ans.text_answer|default:'' }}{% endif %}{% endfor %}</textarea>
+          
+          <div class="file-upload">
+            <label class="file-upload-label">
+              <i data-lucide="upload"></i>
+              Прикрепить файл с решением (опционально)
+            </label>
+            <p class="file-upload-hint">Вы можете загрузить скрипт, ноутбук (.ipynb), отчет или скриншот.</p>
+            <input type="file" name="q_{{ q.id }}_file">
+            
+            {% for ans in existing_answers.values %}
+              {% if ans.question_id == q.id and ans.file_answer %}
+              <div class="current-file">
+                <i data-lucide="check-circle"></i>
+                <span>Текущий файл:</span>
+                <a href="{{ ans.file_answer.url }}" target="_blank" class="file-link file-link--inline">
+                  <i data-lucide="paperclip"></i>
+                  Посмотреть
+                </a>
+                <span class="file-hint">(новый файл заменит старый)</span>
+              </div>
+              {% endif %}
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+      {% empty %}
+      {% if not auto_assignments %}
+      <div class="testing-card">
+        <div class="empty-state">
+          <i data-lucide="file-question"></i>
+          <p>В этом тесте пока нет заданий. Обратитесь к преподавателю.</p>
+        </div>
+      </div>
+      {% endif %}
+      {% endfor %}
+
+      {% if auto_assignments %}
+      <div class="testing-card">
+        <div class="card-header">
+          <div class="card-icon">
+            <i data-lucide="check-circle"></i>
+          </div>
+          <div class="card-title-group">
+            <h2>Автопроверяемые задания</h2>
+            <p class="card-subtitle">Откройте каждое задание, решите его в основном интерфейсе и вернитесь к контрольной</p>
+          </div>
+        </div>
+
+        <ul class="testing-list-tests">
+          {% for assignment in auto_assignments %}
+          <li>
+            <div class="test-info">
+              <strong class="test-title">{{ assignment.task.title }}</strong>
+              <div class="test-meta">
+                <span class="meta-item">
+                  <i data-lucide="award"></i>
+                  {{ assignment.score }} балл.
+                </span>
+                {% if assignment.task.concept %}
+                <span class="meta-item">
+                  <i data-lucide="network"></i>
+                  {{ assignment.task.concept.title }}
+                </span>
+                {% endif %}
+                {% if assignment.test_status == 'correct' %}
+                <span class="status-badge status-badge--success">Решено</span>
+                {% elif assignment.test_status == 'attempted' %}
+                <span class="status-badge status-badge--warning">Есть попытка</span>
+                {% else %}
+                <span class="status-badge status-badge--info">Не решено</span>
+                {% endif %}
+              </div>
+            </div>
+            <div class="test-action">
+              <a href="{% url 'tasks:challenge_detail' assignment.task.slug %}?test_attempt={{ attempt.pk }}" class="btn btn-outline">
+                <i data-lucide="external-link"></i>
+                Открыть
+              </a>
+            </div>
+          </li>
+          {% endfor %}
+        </ul>
+      </div>
+      {% endif %}
+
+      <!-- Sticky Bottom Bar -->
+      <div class="sticky-bottom">
+        <div class="sticky-left">
+          <button type="submit" name="save_draft" class="btn btn-outline">
+            <i data-lucide="save"></i>
+            Сохранить черновик
+          </button>
+          <span class="sticky-hint">Можно сохранить и вернуться позже</span>
+        </div>
+        
+        <button type="button" id="trigger-submit-btn" class="btn btn-primary">
+          <i data-lucide="send"></i>
+          Сдать работу
+        </button>
+        
+        <input type="hidden" id="submit-action-input" name="" value="1">
+      </div>
+    </form>
+
+<!-- Submit Confirmation Modal -->
+<div id="submitConfirmModal" class="testing-modal-overlay">
+  <div class="testing-modal-content">
+    <div class="testing-modal-title">
+      <i data-lucide="send"></i>
+      Сдача работы
+    </div>
+    <div class="testing-modal-text">
+      Вы уверены, что хотите окончательно сдать работу на проверку?
+      <div class="testing-modal-warning"><i data-lucide="alert-circle"></i><span> После сдачи вы <strong>не сможете</strong> изменить свои ответы или прикрепить новые файлы.</span></div>
+    </div>
+    <div class="testing-modal-actions">
+      <button type="button" id="cancelSubmitBtn" class="btn btn-outline">Проверить еще раз</button>
+      <button type="button" id="confirmSubmitBtn" class="btn btn-primary">Да, сдать работу</button>
+    </div>
+  </div>
+</div>
+{% endblock %}

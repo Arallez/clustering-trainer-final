@@ -1,0 +1,86 @@
+{% extends 'testing/base_testing.html' %}
+
+{% block title %}Создать задание{% endblock %}
+
+{% block testing_container_class %} testing-container--form{% endblock %}
+
+{% block testing_content %}
+    <!-- Page Header -->
+    <header class="page-header">
+      <h1>Создание <span class="highlight">задания</span></h1>
+    </header>
+
+    <form method="post" enctype="multipart/form-data" class="testing-form">
+      {% csrf_token %}
+
+      <div class="testing-card">
+        <div class="card-header">
+          <div class="card-icon">
+            <i data-lucide="file-plus"></i>
+          </div>
+          <h2>Основная информация</h2>
+        </div>
+
+        <div class="form-group">
+          <label for="id_title" class="form-label">
+            <i data-lucide="type"></i>
+            Краткое название (тема)
+          </label>
+          <input type="text" name="title" id="id_title" class="form-input" required placeholder="Например: Кластеризация клиентов банка (DBSCAN)">
+        </div>
+
+        <div class="form-group">
+          <label for="id_max_score" class="form-label">
+            <i data-lucide="award"></i>
+            Максимальный балл
+          </label>
+          <input type="number" name="max_score" id="id_max_score" class="form-input form-input--score" value="10" min="1" max="100" required>
+        </div>
+      </div>
+
+      <div class="testing-card">
+        <div class="card-header">
+          <div class="card-icon">
+            <i data-lucide="file-text"></i>
+          </div>
+          <h2>Условие задания</h2>
+        </div>
+
+        <div class="form-group">
+          <label for="id_content" class="form-label">
+            <i data-lucide="edit-3"></i>
+            Текст задания
+          </label>
+          <textarea name="content" id="id_content" class="form-textarea" rows="8" required placeholder="Опишите подробно, что нужно сделать..."></textarea>
+        </div>
+      </div>
+
+      <div class="testing-card">
+        <div class="card-header">
+          <div class="card-icon">
+            <i data-lucide="paperclip"></i>
+          </div>
+          <div class="card-title-group">
+            <h2>Материалы</h2>
+            <p class="card-subtitle">Прикрепите файлы для студента (опционально)</p>
+          </div>
+        </div>
+
+        <div class="file-upload">
+          <p class="file-upload-hint">Можно загрузить CSV-датасет, PDF, ноутбук или другой файл, который студент скачает для выполнения работы.</p>
+          <input type="file" name="attached_file" class="form-file">
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary">
+          <i data-lucide="check"></i>
+          Сохранить в банк
+        </button>
+        <a href="{% url 'testing:home' %}" class="btn btn-outline">
+          <i data-lucide="x"></i>
+          Отмена
+        </a>
+      </div>
+    </form>
+{% endblock %}

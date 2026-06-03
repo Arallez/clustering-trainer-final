@@ -1,0 +1,129 @@
+﻿{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Профиль{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/core/profile.css' %}?v=2.0">
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/core/particles.js' %}"></script>
+<script src="{% static 'js/core/profile.js' %}"></script>
+{% endblock %}
+
+{% block content %}
+<!-- Particles Canvas -->
+<canvas id="particles-canvas"></canvas>
+
+<!-- Background Orbs -->
+<div class="bg-orb bg-orb--primary"></div>
+<div class="bg-orb bg-orb--accent"></div>
+
+<div class="profile-page">
+    
+    <!-- Header Card -->
+    <div class="profile-header">
+        <div class="avatar-circle">
+            {{ user.username|first|upper }}
+        </div>
+        <div class="user-info">
+            <h1>{{ user.username }}</h1>
+            <p class="user-email">{{ user.email|default:"Нет email" }}</p>
+            <div class="user-role">
+                {% if user.is_superuser %}
+                    <span class="role-badge role-badge--admin">Администратор</span>
+                {% elif user.is_staff or is_teacher %}
+                    <span class="role-badge role-badge--teacher">Преподаватель</span>
+                {% else %}
+                    <span class="role-badge">Студент</span>
+                {% endif %}
+            </div>
+        </div>
+        <div class="profile-actions">
+            <form action="{% url 'core:logout' %}" method="post">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-outline">
+                    <i data-lucide="log-out"></i>
+                    Выйти
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Stats Grid -->
+    <div class="stats-grid">
+        <div class="stat-card stat-card--learning-path">
+            <div class="stat-icon">
+                <i data-lucide="compass"></i>
+            </div>
+            <a href="{% url 'core:learning_path' %}" class="btn">
+                Путь обучения
+            </a>
+            <div class="stat-label">Индивидуальный план</div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-value">{{ solved_tasks_count }} / {{ total_tasks }}</div>
+            <div class="stat-label">Решено задач</div>
+            <div class="progress-bar-container">
+                <div class="progress-fill" data-progress="{{ task_progress_percent }}"></div>
+            </div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-value">{{ overall_progress_percent }}%</div>
+            <div class="stat-label">Прогресс по онтологии</div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-value">{{ completed_materials_count }} / {{ total_materials }}</div>
+            <div class="stat-label">Изучено материалов</div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-value">{{ user.date_joined|date:"d M" }}</div>
+            <div class="stat-label">Дата регистрации</div>
+        </div>
+    </div>
+
+    <!-- Activity History -->
+    <h2 class="section-title">История активности</h2>
+    <div class="activity-table-container">
+        {% if recent_attempts %}
+        <table class="activity-table">
+            <thead>
+                <tr>
+                    <th>Статус</th>
+                    <th>Задание</th>
+                    <th>Алгоритм</th>
+                    <th>Дата</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for attempt in recent_attempts %}
+                <tr>
+                    <td>
+                        {% if attempt.is_correct %}
+                            <span class="status-success">✓ Успех</span>
+                        {% else %}
+                            <span class="status-fail">✗ Ошибка</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ attempt.task.title }}</td>
+                    <td>{{ attempt.task.get_algorithm_display }}</td>
+                    <td>{{ attempt.created_at|date:"d.m.Y H:i" }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div class="empty-history">
+            <p>Пока нет решений.</p>
+            <a href="{% url 'tasks:task_list' %}" class="btn">Перейти к заданиям</a>
+        </div>
+        {% endif %}
+    </div>
+
+</div>
+{% endblock %}

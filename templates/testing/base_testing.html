@@ -1,0 +1,29 @@
+﻿{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/testing/index.css' %}">
+{% block testing_extra_css %}{% endblock %}
+{% endblock %}
+
+{% block extra_js %}
+{% block testing_pre_js %}{% endblock %}
+<script src="{% static 'js/core/particles.js' %}"></script>
+{% block testing_main_js %}
+<script src="{% static 'js/testing/index.js' %}"></script>
+{% endblock %}
+{% block testing_extra_js %}{% endblock %}
+{% endblock %}
+
+{% block content %}
+<canvas id="particles-canvas"></canvas>
+
+<div class="bg-orb bg-orb--primary"></div>
+<div class="bg-orb bg-orb--accent"></div>
+
+<div class="testing-page">
+  <div class="testing-container{% block testing_container_class %}{% endblock %}">
+    {% block testing_content %}{% endblock %}
+  </div>
+</div>
+{% endblock %}

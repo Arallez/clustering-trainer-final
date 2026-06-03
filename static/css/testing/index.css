@@ -1,0 +1,20 @@
+/* Testing Module - Main Entry Point
+ * Import all testing-related styles
+ * 
+ * Structure:
+ * - base.css      - Common components (cards, forms, lists, buttons)
+ * - modals.css    - Modal dialogs
+ * - take-test.css - Take test page, timer, progress, questions
+ * - grading.css   - Teacher grading page
+ * - results.css   - Student results and tables
+ * - group.css     - Group detail page and tables
+ * - pages.css     - Individual page-specific styles
+ */
+
+@import url('./base.css');
+@import url('./modals.css');
+@import url('./take-test.css');
+@import url('./grading.css');
+@import url('./results.css');
+@import url('./group.css');
+@import url('./pages.css');

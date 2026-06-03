@@ -1,0 +1,130 @@
+﻿{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Практикум по кластеризации{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/tasks/list.css' %}?v=2.4">
+{% endblock %}
+
+{% block content %}
+<div class="tasks-page">
+  <div class="bg-orb bg-orb--primary"></div>
+  <div class="bg-orb bg-orb--accent"></div>
+  <canvas id="particles-canvas"></canvas>
+
+  <main class="tasks-main">
+    <header class="tasks-header">
+      <h1 class="tasks-title">Практикум по <span class="highlight">кластеризации</span></h1>
+    </header>
+
+    {% if curriculum_modules %}
+      {% for module in curriculum_modules %}
+      <section id="{{ module.slug }}" class="algorithm-section">
+        <div class="module-section-head">
+          <div class="module-section-copy">
+            <h2 class="algorithm-title">
+              <i data-lucide="folder-open"></i>
+              {{ module.title }}
+            </h2>
+            <p class="module-summary">{{ module.summary }}</p>
+          </div>
+          <div class="module-section-meta">
+            <span class="course-module-card__status {{ module.status_class }}">{{ module.status_label }}</span>
+            <span class="module-progress-pill">{{ module.progress_percent }}%</span>
+          </div>
+        </div>
+
+        {% if module.highlights %}
+        <div class="module-links-row">
+          {% for item in module.highlights %}
+          <span class="module-note">{{ item }}</span>
+          {% endfor %}
+        </div>
+        {% endif %}
+
+        {% if module.materials or module.simulator_links %}
+        <div class="module-links-grid">
+          {% if module.materials %}
+          <div class="module-links-block">
+            <h3 class="module-links-title">Теория</h3>
+            <div class="module-inline-links">
+              {% for material in module.materials %}
+              <a href="{{ material.get_absolute_url }}" class="module-inline-link {% if material.is_completed %}module-inline-link--done{% elif material.is_opened %}module-inline-link--seen{% endif %}">
+                <span>{{ material.title }}</span>
+              </a>
+              {% endfor %}
+            </div>
+          </div>
+          {% endif %}
+
+          {% if module.simulator_links %}
+          <div class="module-links-block">
+            <h3 class="module-links-title">Симулятор</h3>
+            <div class="module-inline-links">
+              {% for simulator in module.simulator_links %}
+              <a href="{{ simulator.url }}" class="module-inline-link {% if simulator.is_completed %}module-inline-link--done{% endif %}">
+                <span>{{ simulator.label }}</span>
+              </a>
+              {% endfor %}
+            </div>
+          </div>
+          {% endif %}
+        </div>
+        {% endif %}
+
+        {% if module.tasks %}
+        <div class="tasks-grid">
+          {% for task in module.tasks %}
+          <a href="{% url 'tasks:challenge_detail' task.slug %}" class="task-card {% if task.id in completed_task_ids %}completed{% else %}task-card--todo{% endif %}">
+            <div class="task-card__top">
+              <div class="task-badge difficulty-{{ task.difficulty }}">
+                {% if task.difficulty == 1 %}Novice
+                {% elif task.difficulty == 2 %}Beginner
+                {% else %}Hard
+                {% endif %}
+              </div>
+              <div class="task-card__badges">
+                <span class="task-card__type">{% if task.task_type == 'choice' %}Quiz{% else %}Code{% endif %}</span>
+              </div>
+            </div>
+            <h3 class="task-card-title">{{ task.title }}</h3>
+            <p class="task-card-desc">{{ task.description|striptags|truncatewords:20 }}</p>
+            {% if task.concept %}
+            <span class="task-card__concept">{{ task.concept.title }}</span>
+            {% endif %}
+            <span class="task-card-arrow">
+              {% if task.id in completed_task_ids %}Открыть повторно{% else %}Решить{% endif %}
+              <i data-lucide="arrow-right"></i>
+            </span>
+          </a>
+          {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty-block">
+          <i data-lucide="inbox"></i>
+          <p>В этом модуле задачи пока не заполнены.</p>
+        </div>
+        {% endif %}
+      </section>
+      {% endfor %}
+    {% else %}
+      <section class="empty-state">
+        <div class="empty-state-icon">
+          <i data-lucide="folder-open"></i>
+        </div>
+        <h3 class="empty-state-title">Задач пока нет</h3>
+        <p class="empty-state-text">Добавьте модули и задания через админку.</p>
+      </section>
+    {% endif %}
+  </main>
+
+  <footer class="tasks-footer">
+    <div class="footer-text">Практикуйтесь регулярно для лучшего результата</div>
+  </footer>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/core/particles.js' %}"></script>
+{% endblock %}

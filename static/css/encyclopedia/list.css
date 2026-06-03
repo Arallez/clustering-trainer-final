@@ -1,0 +1,357 @@
+/* =========================================
+   ENCYCLOPEDIA LIST - Matching Design System
+   ========================================= */
+
+.encyclopedia-page {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+}
+
+/* =========================================
+   PAGE HEADER
+   ========================================= */
+.page-header {
+    text-align: center;
+    margin: 3rem 0 2rem;
+    padding: 0 1rem;
+}
+
+.page-header h1 {
+    font-size: clamp(2rem, 5vw, 3rem);
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    letter-spacing: -0.02em;
+}
+
+.page-header h1 .highlight {
+    background: linear-gradient(135deg, var(--primary-400), var(--accent-400));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.page-subtitle {
+    color: var(--text-muted);
+    font-size: 1.1rem;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+/* =========================================
+   CONTROLS
+   ========================================= */
+.controls-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.5rem;
+    margin-bottom: 3rem;
+    padding: 0 1rem;
+}
+
+.view-toggle {
+    display: flex;
+    justify-content: center;
+    gap: 3px;
+    background: rgba(28, 25, 23, 0.8);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    padding: 3px;
+    border-radius: 10px;
+    border: 1px solid var(--border-subtle);
+}
+
+.toggle-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.4rem 0.9rem;
+    border-radius: 6px;
+    color: var(--text-muted);
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.85rem;
+    transition: all 0.2s ease;
+}
+
+.toggle-btn i {
+    width: 14px;
+    height: 14px;
+}
+
+.toggle-btn:hover {
+    color: var(--text-primary);
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.toggle-btn.active {
+    background: linear-gradient(135deg, var(--primary-500), var(--primary-600));
+    color: white;
+}
+
+.search-container {
+    position: relative;
+    width: 100%;
+    max-width: 500px;
+}
+
+.search-input {
+    width: 100%;
+    padding: 1rem 1rem 1rem 3rem;
+    background: rgba(28, 25, 23, 0.5);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid var(--border-subtle);
+    border-radius: 12px;
+    color: var(--text-primary);
+    font-size: 1rem;
+    font-family: var(--font-main);
+    transition: all 0.2s ease;
+    box-sizing: border-box;
+}
+
+.search-input:focus {
+    outline: none;
+    border-color: var(--primary-500);
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
+.search-input::placeholder {
+    color: var(--text-muted);
+}
+
+.search-icon {
+    position: absolute;
+    left: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-muted);
+    pointer-events: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.search-icon i {
+    width: 18px;
+    height: 18px;
+}
+
+/* =========================================
+   CONCEPTS GRID
+   ========================================= */
+.concept-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 1.5rem;
+    padding: 0 1rem 4rem;
+    max-width: 1400px;
+    margin: 0 auto;
+    position: relative;
+    z-index: 1;
+}
+
+.concept-card {
+    background: rgba(28, 25, 23, 0.62);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    border: 1px solid var(--border-subtle);
+    border-radius: 12px;
+    padding: 1.25rem;
+    text-decoration: none;
+    color: inherit;
+    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Gradient border on hover */
+.concept-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 12px;
+    padding: 1px;
+    background: linear-gradient(135deg, transparent, transparent);
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    transition: background 0.4s ease;
+}
+
+.concept-card:hover::before {
+    background: linear-gradient(135deg, var(--primary-500), var(--accent-500));
+}
+
+.concept-card:hover {
+    transform: translateY(-2px);
+    background: rgba(28, 25, 23, 0.76);
+    box-shadow: 0 8px 28px rgba(0, 0, 0, 0.28);
+}
+
+/* =========================================
+   CARD CONTENT
+   ========================================= */
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 0.75rem;
+}
+
+.concept-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0;
+    line-height: 1.3;
+}
+
+.concept-type-badge {
+    font-size: 0.7rem;
+    padding: 0.25rem 0.6rem;
+    border-radius: 6px;
+    background: rgba(99, 102, 241, 0.1);
+    border: 1px solid rgba(99, 102, 241, 0.2);
+    color: var(--primary-400);
+    text-transform: uppercase;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+}
+
+.concept-uri {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--accent-400);
+    margin-bottom: 1rem;
+    opacity: 0.8;
+}
+
+.concept-desc {
+    font-size: 0.95rem;
+    color: var(--text-muted);
+    line-height: 1.65;
+    margin-bottom: 1.5rem;
+    display: block;
+    position: relative;
+    overflow: hidden;
+    flex: 0 0 auto;
+    min-height: calc(0.95rem * 1.65 * 3 + 0.5rem);
+    max-height: calc(0.95rem * 1.65 * 3 + 0.5rem);
+    padding-bottom: 0.5rem;
+}
+
+.concept-desc::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 1.1rem;
+    pointer-events: none;
+    background: linear-gradient(to bottom, rgba(28, 25, 23, 0), rgba(28, 25, 23, 0.96));
+}
+
+.concept-meta {
+    padding-top: 1rem;
+    border-top: 1px solid var(--border-subtle);
+    display: flex;
+    gap: 1rem;
+    font-size: 0.85rem;
+    color: var(--text-disabled);
+}
+
+.meta-item {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.meta-item i {
+    width: 14px;
+    height: 14px;
+}
+
+.meta-item.meta-item-end {
+    margin-left: auto;
+}
+
+/* =========================================
+   EMPTY STATE
+   ========================================= */
+.empty-state {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 4rem 1rem;
+    color: var(--text-muted);
+}
+
+#noResults {
+    display: none;
+}
+
+.empty-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1rem;
+    opacity: 0.5;
+}
+
+.empty-icon i {
+    width: 48px;
+    height: 48px;
+}
+
+/* =========================================
+   MARKDOWN CONTENT
+   ========================================= */
+.markdown-content {
+    opacity: 0;
+    transition: opacity 0.1s ease-in-out;
+}
+
+.concept-desc.markdown-content * {
+    margin-bottom: 0.2rem;
+    font-size: 0.95rem;
+    line-height: inherit;
+}
+
+.concept-desc.markdown-content p {
+    display: inline;
+    margin: 0;
+}
+
+/* =========================================
+   RESPONSIVE
+   ========================================= */
+@media (max-width: 768px) {
+    .page-header {
+        margin: 2rem 0 1.5rem;
+    }
+    
+    .concept-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+        padding: 0 1rem 2rem;
+    }
+    
+    .concept-card {
+        padding: 1.25rem;
+    }
+    
+    .view-toggle {
+        flex-direction: column;
+        width: 100%;
+        max-width: 300px;
+    }
+    
+    .toggle-btn {
+        text-align: center;
+    }
+}

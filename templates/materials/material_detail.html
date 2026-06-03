@@ -1,0 +1,94 @@
+﻿{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ material.title }}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/materials/index.css' %}?v=2.1">
+{% endblock %}
+
+{% block content %}
+<!-- Particles Canvas -->
+<canvas id="particles-canvas"></canvas>
+
+<div class="materials-page">
+    <!-- Background Orbs -->
+    <div class="bg-orb bg-orb--primary"></div>
+    <div class="bg-orb bg-orb--accent"></div>
+
+    <div class="materials-container">
+        <div class="breadcrumbs">
+            <a href="{% url 'materials:materials_list' %}">
+                <i data-lucide="arrow-left"></i>
+                Назад к списку
+            </a>
+        </div>
+
+        <article class="material-detail-card">
+            <header class="material-header">
+                <div class="material-header-row">
+                    <div class="material-type-badge">
+                        <i data-lucide="file-text"></i>
+                        Теория
+                    </div>
+                    {% if request.user.is_authenticated %}
+                    <form method="post" class="material-progress-form">
+                        {% csrf_token %}
+                        {% if progress and progress.completed_at %}
+                        <input type="hidden" name="action" value="mark_uncompleted">
+                        <button type="submit" class="btn btn-outline material-progress-btn">
+                            <i data-lucide="rotate-ccw"></i>
+                            Снять отметку
+                        </button>
+                        {% else %}
+                        <input type="hidden" name="action" value="mark_completed">
+                        <button type="submit" class="btn material-progress-btn">
+                            <i data-lucide="check"></i>
+                            Отметить как изученный
+                        </button>
+                        {% endif %}
+                    </form>
+                    {% endif %}
+                </div>
+                <h1>{{ material.title }}</h1>
+                <div class="material-meta">
+                    {% if material.concept %}
+                    <span>
+                        <i data-lucide="tag"></i>
+                        {{ material.concept.name|default:material.concept.uri }}
+                    </span>
+                    {% endif %}
+                    {% if request.user.is_authenticated and progress %}
+                    <span>
+                        <i data-lucide="eye"></i>
+                        Открытий: {{ progress.open_count }}
+                    </span>
+                    {% endif %}
+                </div>
+                {% if request.user.is_authenticated and progress %}
+                <div class="material-progress-note {% if progress.completed_at %}material-progress-note--done{% endif %}">
+                    {% if progress.completed_at %}
+                    Материал учтён как изученный и больше не будет мешать в рекомендациях.
+                    {% else %}
+                    После чтения можно отметить материал как изученный, чтобы это учитывалось в маршруте обучения.
+                    {% endif %}
+                </div>
+                {% endif %}
+            </header>
+
+            <div class="material-body markdown-content">
+                {{ material.content }}
+            </div>
+        </article>
+
+    </div>
+</div>
+{% endblock %}
+
+{% block markdown_js %}
+    {% include 'includes/markdown_scripts.html' %}
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/core/particles.js' %}"></script>
+{% endblock %}

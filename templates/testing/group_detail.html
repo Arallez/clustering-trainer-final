@@ -1,0 +1,120 @@
+{% extends 'testing/base_testing.html' %}
+
+{% block title %}Управление группой: {{ group.name }}{% endblock %}
+
+{% block testing_content %}
+    <!-- Page Header -->
+    <header class="page-header">
+      <div class="breadcrumbs">
+        <a href="{% url 'testing:home' %}">
+          <i data-lucide="arrow-left"></i>
+          Назад
+        </a>
+      </div>
+      <h1>Группа: {{ group.name }}</h1>
+    </header>
+
+    <!-- Group Info Card -->
+    <div class="testing-card">
+      <div class="card-header">
+        <div class="card-icon">
+          <i data-lucide="users"></i>
+        </div>
+        <div class="card-title-group">
+          <h2>Код подключения</h2>
+          <p class="card-subtitle">Передайте этот код студентам</p>
+        </div>
+      </div>
+      <div class="group-code-display">
+        <code class="testing-code testing-code--large">{{ group.join_code }}</code>
+      </div>
+      <div class="test-stats">
+        <div class="stat-item">
+          <i data-lucide="calendar"></i>
+          <span>Создана: {{ group.created_at|date:"d.m.Y" }}</span>
+        </div>
+        <div class="stat-item">
+          <i data-lucide="users"></i>
+          <span>Участников: <strong>{{ group.members.count }}</strong></span>
+        </div>
+        <div class="stat-item">
+          <i data-lucide="clipboard-list"></i>
+          <span>Тестов: <strong>{{ tests|length }}</strong></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Students Progress Card -->
+    <div class="testing-card">
+      <div class="card-header">
+        <div class="card-icon">
+          <i data-lucide="bar-chart-2"></i>
+        </div>
+        <h2>Успеваемость студентов</h2>
+      </div>
+      
+      {% if student_rows %}
+      <div class="table-wrapper">
+        <table class="result-table group-table">
+          <thead>
+            <tr>
+              <th>Студент</th>
+              {% for test in tests %}
+              <th>
+                <a href="{% url 'testing:test_results' test.id %}" class="test-link">
+                  {{ test.title }}
+                  <span class="test-max">(Max: {{ test.max_possible_score }})</span>
+                </a>
+              </th>
+              {% endfor %}
+            </tr>
+          </thead>
+          <tbody>
+            {% for row in student_rows %}
+            <tr>
+              <td>
+                <div class="student-info">
+                  <strong class="student-name">{{ row.user.username }}</strong>
+                  <span class="student-fullname">{{ row.user.get_full_name|default:"-" }}</span>
+                </div>
+              </td>
+              {% for t_res in row.test_results %}
+              <td>
+                {% if t_res.attempt %}
+                  {% if t_res.attempt.is_graded %}
+                  <div class="result-cell">
+                    <span class="status-badge status-badge--success">Проверено</span>
+                    <span class="score-display">
+                      <span class="score-value">{{ t_res.attempt.total_score }}</span>
+                      <span class="score-max">/ {{ t_res.test.max_possible_score }}</span>
+                    </span>
+                  </div>
+                  {% elif t_res.attempt.is_submitted %}
+                  <div class="result-cell">
+                    <span class="status-badge status-badge--warning">Ожидает проверки</span>
+                    <span class="status-text">Сдано</span>
+                  </div>
+                  {% else %}
+                  <div class="result-cell">
+                    <span class="status-badge status-badge--info">В процессе</span>
+                    <span class="progress-text">{{ t_res.progress.attempted }}/{{ t_res.progress.total }}</span>
+                  </div>
+                  {% endif %}
+                {% else %}
+                <span class="status-badge status-badge--past">Не начинал</span>
+                {% endif %}
+              </td>
+              {% endfor %}
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+      <div class="empty-state">
+        <i data-lucide="users"></i>
+        <p>В этой группе пока нет студентов.</p>
+      </div>
+      {% endif %}
+    </div>
+{% endblock %}

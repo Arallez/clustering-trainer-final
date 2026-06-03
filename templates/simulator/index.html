@@ -1,0 +1,291 @@
+﻿{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Симулятор{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/simulator/index.css' %}?v=5.2">
+{% endblock %}
+
+{% block content %}
+<canvas id="particles-canvas"></canvas>
+
+{% verbatim %}
+<div id="app" v-cloak>
+    <button class="sidebar-toggle" @click="sidebarOpen = !sidebarOpen" :class="{ 'active': sidebarOpen }">
+        <span class="toggle-text" v-if="!sidebarOpen">Настройки</span>
+        <span class="toggle-text" v-else>Закрыть</span>
+    </button>
+
+    <div class="layout">
+        <aside class="sidebar" :class="{ 'sidebar--open': sidebarOpen }">
+            <button class="sidebar-close" @click="sidebarOpen = false">×</button>
+
+            <div class="control-group">
+                <span class="control-label">Алгоритм</span>
+                <select class="cluster-input full-width" v-model="algorithm">
+                    <option value="kmeans">K-Means</option>
+                    <option value="minibatch">MiniBatch K-Means</option>
+                    <option value="dbscan">DBSCAN</option>
+                    <option value="forel">FOREL</option>
+                    <option value="agglomerative">Agglomerative clustering</option>
+                    <option value="ward">Ward hierarchical clustering</option>
+                    <option value="meanshift">Mean Shift</option>
+                    <option value="gmm">Gaussian Mixtures</option>
+                    <option value="spectral">Spectral clustering</option>
+                    <option value="optics">OPTICS</option>
+                    <option value="affinity">Affinity Propagation</option>
+                    <option value="bisecting">Bisecting K-Means</option>
+                    <option value="birch">BIRCH</option>
+                </select>
+            </div>
+
+            <div class="control-group">
+                <span class="control-label">Готовый датасет</span>
+                <select class="cluster-input full-width" v-model="selectedPreset">
+                    <option value="" selected>Ручной ввод</option>
+                    <option value="moons">Луны</option>
+                    <option value="circles">Кольца</option>
+                    <option value="blobs">Пятна</option>
+                    <option value="grid">Сетка</option>
+                    <option value="hierarchy">Иерархия</option>
+                    <option value="dense_sparse">Плотные и разреженные</option>
+                    <option value="anisotropic">Вытянутые группы</option>
+                    <option value="outliers">Шум и выбросы</option>
+                    <option value="many_blobs">Много групп</option>
+                    <option value="bridge">Мост между группами</option>
+                </select>
+            </div>
+
+            <div class="control-group" v-if="algorithm === 'kmeans' || algorithm === 'minibatch' || algorithm === 'agglomerative' || algorithm === 'ward' || algorithm === 'gmm' || algorithm === 'spectral' || algorithm === 'bisecting' || algorithm === 'birch'">
+                <span class="control-label">Число кластеров (K)</span>
+                <div class="k-controls">
+                    <button class="btn btn-outline" @click="k > 2 ? k-- : null">-</button>
+                    <input type="number" v-model="k" class="cluster-input" min="2" max="10">
+                    <button class="btn btn-outline" @click="k < 10 ? k++ : null">+</button>
+                </div>
+            </div>
+
+            <div class="control-group" v-if="algorithm === 'minibatch'">
+                <span class="control-label">Размер батча</span>
+                <div class="k-controls">
+                    <button class="btn btn-outline" @click="batchSize > 4 ? batchSize = batchSize - 4 : null">-</button>
+                    <input type="number" v-model="batchSize" class="cluster-input" min="4" max="128" step="4">
+                    <button class="btn btn-outline" @click="batchSize < 128 ? batchSize = batchSize + 4 : null">+</button>
+                </div>
+            </div>
+
+            <div class="control-group" v-if="algorithm === 'dbscan'">
+                <span class="control-label">Радиус epsilon</span>
+                <div class="k-controls">
+                    <button class="btn btn-outline" @click="eps = Math.max(0.1, (parseFloat(eps) - 0.1).toFixed(1))">-</button>
+                    <input type="number" v-model.number="eps" class="cluster-input" step="0.1" min="0.1" max="5.0">
+                    <button class="btn btn-outline" @click="eps = Math.min(5.0, (parseFloat(eps) + 0.1).toFixed(1))">+</button>
+                </div>
+            </div>
+
+            <div class="control-group" v-if="algorithm === 'dbscan' || algorithm === 'optics'">
+                <span class="control-label">Минимум соседей</span>
+                <div class="k-controls">
+                    <button class="btn btn-outline" @click="minPts > 2 ? minPts-- : null">-</button>
+                    <input type="number" v-model="minPts" class="cluster-input" min="2" max="20">
+                    <button class="btn btn-outline" @click="minPts < 20 ? minPts++ : null">+</button>
+                </div>
+            </div>
+
+            <div class="control-group" v-if="algorithm === 'forel'">
+                <span class="control-label">Радиус</span>
+                <div class="k-controls">
+                    <button class="btn btn-outline" @click="radius = Math.max(0.1, ((parseFloat(radius) || 1.0) - 0.1).toFixed(1))">-</button>
+                    <input type="number" v-model.number="radius" class="cluster-input" step="0.1" min="0.1" max="5.0">
+                    <button class="btn btn-outline" @click="radius = Math.min(5.0, ((parseFloat(radius) || 1.0) + 0.1).toFixed(1))">+</button>
+                </div>
+            </div>
+
+            <div class="control-group" v-if="algorithm === 'agglomerative'">
+                <span class="control-label">Правило связи</span>
+                <select class="cluster-input full-width" v-model="agglomerativeLinkage">
+                    <option value="single">Одиночная связь</option>
+                    <option value="complete">Полная связь</option>
+                    <option value="average">Средняя связь</option>
+                </select>
+            </div>
+
+            <div class="control-group" v-if="algorithm === 'meanshift'">
+                <span class="control-label">Ширина окна</span>
+                <div class="k-controls">
+                    <button class="btn btn-outline" @click="bandwidth = Math.max(0.1, ((parseFloat(bandwidth) || 1.0) - 0.1).toFixed(1))">-</button>
+                    <input type="number" v-model.number="bandwidth" class="cluster-input" step="0.1" min="0.1" max="5.0">
+                    <button class="btn btn-outline" @click="bandwidth = Math.min(5.0, ((parseFloat(bandwidth) || 1.0) + 0.1).toFixed(1))">+</button>
+                </div>
+            </div>
+
+            <div class="control-group" v-if="algorithm === 'spectral'">
+                <span class="control-label">Сигма</span>
+                <div class="k-controls">
+                    <button class="btn btn-outline" @click="sigma = Math.max(0.1, ((parseFloat(sigma) || 1.0) - 0.1).toFixed(1))">-</button>
+                    <input type="number" v-model.number="sigma" class="cluster-input" step="0.1" min="0.1" max="5.0">
+                    <button class="btn btn-outline" @click="sigma = Math.min(5.0, ((parseFloat(sigma) || 1.0) + 0.1).toFixed(1))">+</button>
+                </div>
+            </div>
+
+            <div class="control-group" v-if="algorithm === 'optics'">
+                <span class="control-label">Xi</span>
+                <div class="k-controls">
+                    <button class="btn btn-outline" @click="xi = Math.max(0.01, ((parseFloat(xi) || 0.05) - 0.01).toFixed(2))">-</button>
+                    <input type="number" v-model.number="xi" class="cluster-input" step="0.01" min="0.01" max="0.5">
+                    <button class="btn btn-outline" @click="xi = Math.min(0.5, ((parseFloat(xi) || 0.05) + 0.01).toFixed(2))">+</button>
+                </div>
+            </div>
+
+            <div class="control-group" v-if="algorithm === 'affinity'">
+                <span class="control-label">Затухание</span>
+                <div class="k-controls">
+                    <button class="btn btn-outline" @click="damping = Math.max(0.5, ((parseFloat(damping) || 0.5) - 0.05).toFixed(2))">-</button>
+                    <input type="number" v-model.number="damping" class="cluster-input" step="0.05" min="0.5" max="0.99">
+                    <button class="btn btn-outline" @click="damping = Math.min(0.99, ((parseFloat(damping) || 0.5) + 0.05).toFixed(2))">+</button>
+                </div>
+            </div>
+
+            <div class="control-group" v-if="algorithm === 'birch'">
+                <span class="control-label">Порог</span>
+                <div class="k-controls">
+                    <button class="btn btn-outline" @click="threshold = Math.max(0.1, ((parseFloat(threshold) || 0.5) - 0.1).toFixed(1))">-</button>
+                    <input type="number" v-model.number="threshold" class="cluster-input" step="0.1" min="0.1" max="2.0">
+                    <button class="btn btn-outline" @click="threshold = Math.min(2.0, ((parseFloat(threshold) || 0.5) + 0.1).toFixed(1))">+</button>
+                </div>
+            </div>
+
+            <div class="control-group control-group--actions">
+                <button class="btn btn-outline" @click="clearPoints">Очистить поле</button>
+                <button class="btn" @click="runAlgorithm" :disabled="points.length === 0 || isRunning">
+                    {{ isRunning ? 'Выполняется...' : 'Запустить алгоритм' }}
+                </button>
+                <button v-if="algorithm === 'agglomerative' || algorithm === 'ward' || algorithm === 'bisecting' || algorithm === 'birch'" class="btn btn-secondary" @click="viewDendrogram" :disabled="history.length === 0 || isRunning">
+                    Показать дендрограмму
+                </button>
+            </div>
+
+            <div class="help-box">
+                <div v-if="algorithm === 'kmeans'">
+                    <strong>K-Means:</strong> поочерёдно перераспределяет точки по ближайшим центроидам и обновляет их положение.
+                </div>
+                <div v-else-if="algorithm === 'minibatch'">
+                    <strong>MiniBatch K-Means:</strong> обновляет центроиды только по выделенному подмножеству точек на каждом шаге.
+                </div>
+                <div v-else-if="algorithm === 'dbscan'">
+                    <strong>DBSCAN:</strong> строит кластеры из плотных neighbourhood-областей и оставляет разреженные точки шумом.
+                </div>
+                <div v-else-if="algorithm === 'forel'">
+                    <strong>FOREL:</strong> двигает сферу фиксированного радиуса к локальному центру масс, пока группа не стабилизируется.
+                </div>
+                <div v-else-if="algorithm === 'agglomerative'">
+                    <strong>Агломеративная кластеризация:</strong> объединяет ближайшие кластеры по выбранному правилу связи.
+                </div>
+                <div v-else-if="algorithm === 'ward'">
+                    <strong>Метод Уорда:</strong> объединяет ту пару кластеров, которая минимально увеличивает внутрикластерную дисперсию.
+                </div>
+                <div v-else-if="algorithm === 'meanshift'">
+                    <strong>Mean Shift:</strong> смещает кандидатов в центры к более плотным модам облака точек.
+                </div>
+                <div v-else-if="algorithm === 'gmm'">
+                    <strong>Гауссовы смеси:</strong> присваивают точки компонентам вероятностно, а не через жёсткие границы.
+                </div>
+                <div v-else-if="algorithm === 'spectral'">
+                    <strong>Спектральная кластеризация:</strong> сначала преобразует набор точек через граф сходства, а потом кластеризует вложение.
+                </div>
+                <div v-else-if="algorithm === 'optics'">
+                    <strong>OPTICS:</strong> упорядочивает точки по плотностной достижимости перед выделением кластеров.
+                </div>
+                <div v-else-if="algorithm === 'affinity'">
+                    <strong>Affinity Propagation:</strong> находит эталонные точки без предварительного задания K.
+                </div>
+                <div v-else-if="algorithm === 'bisecting'">
+                    <strong>Bisecting K-Means:</strong> рекурсивно делит большие кластеры на две части.
+                </div>
+                <div v-else-if="algorithm === 'birch'">
+                    <strong>BIRCH:</strong> сначала сжимает точки в микро-кластеры, а затем выполняет финальное объединение.
+                </div>
+            </div>
+        </aside>
+
+        <main class="workspace">
+            <div class="stats-bar">
+                <div class="stat-chip">Точки: <span class="stat-value">{{ points.length }}</span></div>
+                <div class="stat-chip" v-if="algorithm === 'kmeans' || algorithm === 'minibatch' || algorithm === 'agglomerative' || algorithm === 'ward' || algorithm === 'gmm' || algorithm === 'spectral' || algorithm === 'bisecting' || algorithm === 'birch'">K: <span class="stat-value">{{ k }}</span></div>
+                <div class="stat-chip" v-if="algorithm === 'minibatch'">Батч: <span class="stat-value">{{ batchSize }}</span></div>
+                <div class="stat-chip" v-if="algorithm === 'agglomerative'">Связь: <span class="stat-value">{{ agglomerativeLinkage }}</span></div>
+                <div class="stat-chip" v-if="algorithm === 'forel'">R: <span class="stat-value">{{ radius }}</span></div>
+                <div class="stat-chip" v-if="algorithm === 'dbscan'">Eps: <span class="stat-value">{{ eps }}</span></div>
+                <div class="stat-chip" v-if="algorithm === 'meanshift'">BW: <span class="stat-value">{{ bandwidth }}</span></div>
+                <div class="stat-chip" v-if="algorithm === 'spectral'">Sigma: <span class="stat-value">{{ sigma }}</span></div>
+                <div class="stat-chip" v-if="algorithm === 'optics'">Xi: <span class="stat-value">{{ xi }}</span></div>
+                <div class="stat-chip" v-if="algorithm === 'affinity'">Затухание: <span class="stat-value">{{ damping }}</span></div>
+                <div class="stat-chip" v-if="algorithm === 'birch'">Порог: <span class="stat-value">{{ threshold }}</span></div>
+                <div class="stat-chip">Шаги: <span class="stat-value">{{ history.length ? history.length : 0 }}</span></div>
+            </div>
+
+            <div class="simulator-progress-note" v-if="simulatorProgressMessage">
+                <i data-lucide="check-circle"></i>
+                <span>{{ simulatorProgressMessage }}</span>
+                <a href="/learning-path/">Вернуться к маршруту</a>
+            </div>
+
+            <div class="graph-card">
+                <div id="plot" @click="handleCanvasClick"></div>
+            </div>
+
+            <transition name="fade">
+                <div class="step-control" v-if="history.length > 0">
+                    <div class="step-control__buttons">
+                        <button class="btn btn-outline" @click="goToFirstStep">В начало</button>
+                        <button class="btn btn-outline" @click="prevStep">Назад</button>
+                        <button class="btn btn-primary" @click="togglePlayback">{{ isPlaying ? 'Пауза' : 'Пуск' }}</button>
+                        <button class="btn btn-outline" @click="nextStep">Вперёд</button>
+                        <button class="btn btn-outline" @click="goToLastStep">В конец</button>
+                    </div>
+
+                    <div class="slider-container">
+                        <span class="step-label align-right">{{ currentStep }}</span>
+                        <input type="range" min="0" :max="history.length - 1" v-model.number="currentStep">
+                        <span class="step-label">{{ history.length - 1 }}</span>
+                    </div>
+
+                    <div class="step-control__speed">
+                        <label class="control-label step-speed-label">Скорость</label>
+                        <select class="cluster-input" v-model="playbackSpeed">
+                            <option :value="1400">Медленно</option>
+                            <option :value="900">Нормально</option>
+                            <option :value="450">Быстро</option>
+                        </select>
+                    </div>
+                </div>
+            </transition>
+        </main>
+    </div>
+
+    <transition name="fade">
+        <div v-if="showDendrogram" class="modal-overlay" @click="closeDendrogram">
+            <div class="modal-content" @click.stop>
+                <button class="modal-close" @click="closeDendrogram">×</button>
+                <div id="dendrogram-plot"></div>
+            </div>
+        </div>
+    </transition>
+</div>
+{% endverbatim %}
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/vendor/plotly.min.js' %}"></script>
+<script src="{% static 'js/vendor/vue.global.js' %}"></script>
+<script src="{% static 'js/core/particles.js' %}"></script>
+<script>
+    window.simulatorApiUrls = {
+        run: "{% url 'simulator:run_algorithm' %}",
+        preset: "{% url 'simulator:get_preset' %}",
+        dendrogram: "{% url 'simulator:get_dendrogram' %}"
+    };
+</script>
+<script type="module" src="{% static 'js/simulator/app.js' %}?v=12.5"></script>
+{% endblock %}

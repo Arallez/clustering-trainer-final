@@ -1,0 +1,95 @@
+﻿{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Регистрация{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/core/auth.css' %}">
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/core/particles.js' %}"></script>
+<script src="{% static 'js/core/auth.js' %}"></script>
+{% endblock %}
+
+{% block content %}
+<!-- Particles Canvas -->
+<canvas id="particles-canvas"></canvas>
+
+<!-- Background Orbs -->
+<div class="bg-orb bg-orb--primary"></div>
+<div class="bg-orb bg-orb--accent"></div>
+
+<div class="auth-page">
+  <div class="auth-container">
+    <div class="auth-brand">
+      <div class="brand-icon">
+        <i data-lucide="user-plus"></i>
+      </div>
+      <h1 class="brand-title">Регистрация</h1>
+      <p class="brand-subtitle">Создайте аккаунт для сохранения прогресса</p>
+    </div>
+
+    <form method="POST" class="auth-form" novalidate>
+      {% csrf_token %}
+
+      <div class="form-group">
+        <label for="id_username" class="form-label">Имя пользователя</label>
+        <div class="input-wrapper">
+          <i data-lucide="user" class="input-icon"></i>
+          <input type="text" name="username" id="id_username" class="form-input" placeholder=" " required autofocus value="{{ form.username.value|default:'' }}">
+        </div>
+        {% if form.username.errors %}
+        <div class="field-error">{{ form.username.errors.0 }}</div>
+        {% endif %}
+      </div>
+
+      <div class="form-group">
+        <label for="id_email" class="form-label">Email</label>
+        <div class="input-wrapper">
+          <i data-lucide="mail" class="input-icon"></i>
+          <input type="email" name="email" id="id_email" class="form-input" placeholder=" " required value="{{ form.email.value|default:'' }}">
+        </div>
+        {% if form.email.errors %}
+        <div class="field-error">{{ form.email.errors.0 }}</div>
+        {% endif %}
+      </div>
+
+      <div class="form-group">
+        <label for="id_password1" class="form-label">Пароль</label>
+        <div class="input-wrapper">
+          <i data-lucide="lock" class="input-icon"></i>
+          <input type="password" name="password1" id="id_password1" class="form-input" placeholder=" " required>
+        </div>
+        {% if form.password1.errors %}
+        <div class="field-error">{{ form.password1.errors.0 }}</div>
+        {% endif %}
+      </div>
+
+      <div class="form-group">
+        <label for="id_password2" class="form-label">Подтверждение пароля</label>
+        <div class="input-wrapper">
+          <i data-lucide="shield-check" class="input-icon"></i>
+          <input type="password" name="password2" id="id_password2" class="form-input" placeholder=" " required>
+        </div>
+        {% if form.password2.errors %}
+        <div class="field-error">{{ form.password2.errors.0 }}</div>
+        {% endif %}
+      </div>
+
+      <button type="submit" class="btn btn-primary btn-full">
+        <i data-lucide="user-plus"></i>
+        Зарегистрироваться
+      </button>
+    </form>
+
+    <div class="auth-footer">
+      <p>Уже есть аккаунт? <a href="{% url 'core:login' %}" class="auth-link">Войти</a></p>
+      <a href="{% url 'core:home' %}" class="auth-link-secondary">
+        <i data-lucide="arrow-left"></i>
+        Вернуться на главную
+      </a>
+    </div>
+  </div>
+</div>
+{% endblock %}

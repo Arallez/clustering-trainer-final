@@ -1,0 +1,153 @@
+﻿{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ task.title }}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/tasks/list.css' %}?v=2.0">
+<link rel="stylesheet" href="{% static 'css/tasks/challenge.css' %}?v=4.3">
+{% endblock %}
+
+{% block content %}
+<div class="challenge-page">
+  <!-- Background Orbs -->
+  <div class="bg-orb bg-orb--primary"></div>
+  <div class="bg-orb bg-orb--accent"></div>
+  
+  <!-- Particles Canvas -->
+  <canvas id="particles-canvas"></canvas>
+
+  <div class="challenge-container">
+    <aside class="task-sidebar">
+      <a href="{% url 'tasks:task_list' %}" class="task-back-link">
+        <i data-lucide="arrow-left"></i>
+        Назад к списку
+      </a>
+      <h1 class="task-title">{{ task.title }}</h1>
+      <div class="task-badge difficulty-{{ task.difficulty }}">
+        {% if task.difficulty == 1 %}Novice{% elif task.difficulty == 2 %}Beginner{% else %}Hard{% endif %}
+      </div>
+      <div class="markdown-content task-description">
+        {{ task.description|safe }}
+      </div>
+      {% if task.task_type == 'code' %}
+      <div class="task-hint-box">
+        <i data-lucide="info"></i>
+        <div class="task-hint-content">
+          <strong>Задача:</strong>
+          Реализуйте функцию <code>{{ task.function_name }}</code>.
+        </div>
+      </div>
+      {% endif %}
+    </aside>
+
+    <main class="editor-area" id="challenge-vue-app">
+      {% verbatim %}
+      <div v-if="taskType === 'code'" class="vue-island-wrapper">
+        <div id="monaco-editor"></div>
+        <div class="controls">
+          <button id="runBtn" class="run-btn" @click="runCode" :disabled="isRunning">
+            <i data-lucide="play"></i>
+            <span>{{ isRunning ? 'Выполняется...' : 'Запустить код' }}</span>
+          </button>
+        </div>
+        <div id="output" class="output-panel" :class="{'output-success': isCodeSuccess === true, 'output-error': isCodeSuccess === false}">
+          {{ codeOutput }}
+        </div>
+        <div class="remediation-panel" v-if="remediation && ((remediation.materials && remediation.materials.length) || (remediation.concepts && remediation.concepts.length))">
+          <div class="remediation-title">Что стоит повторить</div>
+          <div class="remediation-concepts" v-if="remediation.concepts && remediation.concepts.length">
+            <span v-for="concept in remediation.concepts" :key="concept.uri" class="remediation-chip">
+              {{ concept.title }}
+            </span>
+          </div>
+          <a v-for="material in remediation.materials" :key="material.url" class="remediation-link" :href="material.url">
+            {{ material.title }}
+          </a>
+        </div>
+      </div>
+
+      <div v-else-if="taskType === 'choice'" class="quiz-wrapper vue-island-wrapper">
+        <div class="quiz-container-inner">
+          <h2 class="quiz-header">
+            <i data-lucide="help-circle"></i>
+            Проверка знаний
+          </h2>
+          <div id="quiz-container">
+            
+            <!-- Multi-Question Quiz -->
+            <div v-if="isMultiQuestion">
+              <div v-for="(q, qIdx) in quizData" :key="qIdx" class="quiz-question-block" 
+                   :class="{'success-border': quizValidationArray[qIdx] === true, 'error-border': quizValidationArray[qIdx] === false}">
+                <div class="quiz-question-text">{{ q.question || q.text || ('Вопрос ' + (qIdx + 1)) }}</div>
+                <div class="quiz-options-group">
+                  <label v-for="(opt, oIdx) in q.options" :key="oIdx" class="quiz-option" 
+                         :class="{selected: quizAnswers[qIdx] === getOptionValue(opt)}">
+                    <input type="radio" :name="'q_' + qIdx" :value="getOptionValue(opt)" v-model="quizAnswers[qIdx]">
+                    {{ getOptionText(opt) }}
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            <!-- Single-Question Quiz (Legacy) -->
+            <div v-else class="quiz-options-group">
+              <label v-for="(opt, idx) in quizData" :key="idx" class="quiz-option"
+                     :class="{selected: quizAnswers.includes(getOptionValue(opt))}">
+                <input type="checkbox" :value="getOptionValue(opt)" 
+                       :checked="quizAnswers.includes(getOptionValue(opt))"
+                       @change="toggleSingleOption(getOptionValue(opt))">
+                {{ getOptionText(opt) }}
+              </label>
+            </div>
+          </div>
+
+          <button id="submitQuizBtn" class="submit-quiz-btn" @click="submitQuiz" :disabled="isRunning">
+            <i data-lucide="check"></i>
+            {{ isRunning ? 'Проверка...' : 'Отправить ответы' }}
+          </button>
+          
+          <div id="quiz-result" class="quiz-result-message" v-if="quizResultMsg" 
+               :class="{'text-success': isQuizSuccess === true, 'text-error': isQuizSuccess === false}">
+            {{ quizResultMsg }}
+          </div>
+          <div class="remediation-panel" v-if="remediation && ((remediation.materials && remediation.materials.length) || (remediation.concepts && remediation.concepts.length))">
+            <div class="remediation-title">Что стоит повторить</div>
+            <div class="remediation-concepts" v-if="remediation.concepts && remediation.concepts.length">
+              <span v-for="concept in remediation.concepts" :key="concept.uri" class="remediation-chip">
+                {{ concept.title }}
+              </span>
+            </div>
+            <a v-for="material in remediation.materials" :key="material.url" class="remediation-link" :href="material.url">
+              {{ material.title }}
+            </a>
+          </div>
+        </div>
+      </div>
+      {% endverbatim %}
+    </main>
+  </div>
+</div>
+
+<input type="hidden" id="initial-code" value="{{ previous_code|escape }}">
+<input type="hidden" id="task-slug" value="{{ task.slug }}">
+<input type="hidden" id="task-type" value="{{ task.task_type }}">
+<input type="hidden" id="check-solution-url" value="{% url 'tasks:check_solution' %}">
+{% if test_attempt_id %}<input type="hidden" id="test-attempt-id" value="{{ test_attempt_id }}">{% endif %}
+{{ task.test_input|json_script:"quiz-data" }}
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/core/particles.js' %}"></script>
+<!-- Загружаем Vue 3 -->
+<script src="{% static 'js/vendor/vue.global.js' %}"></script>
+<!-- Загружаем Monaco Editor -->
+<script src="{% static 'js/vendor/monaco/vs/loader.js' %}"></script>
+<script>
+  window.monacoEditorBaseUrl = "{% static 'js/vendor/monaco/vs' %}";
+</script>
+<!-- Vue Island Logic -->
+<script src="{% static 'js/tasks/challenge_vue.js' %}?v=5"></script>
+<!-- Markdown & KaTeX для формул (без defer) -->
+{% include 'includes/challenge_markdown.html' %}
+{% endblock %}

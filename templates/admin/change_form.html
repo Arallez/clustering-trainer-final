@@ -1,0 +1,168 @@
+{% extends "admin/base_admin.html" %}
+{% load static admin_urls %}
+
+{% block extrastyle %}
+<link rel="stylesheet" href="{% static 'css/admin/change_form.css' %}">
+{{ media.css }}
+{% endblock %}
+
+{% block page_title %}{% if is_popup %}Добавить{% else %}{% if add %}Добавить{% else %}Изменить{% endif %}{% endif %} {{ opts.verbose_name|lower }}{% endblock %}
+
+{% block content %}
+<!-- Form Header -->
+<div class="change-form-header">
+    <div class="form-breadcrumb">
+        <a href="{% url opts|admin_urlname:'changelist' %}" class="breadcrumb-link">
+            <i data-lucide="arrow-left" class="icon-size-16"></i>
+            {{ opts.verbose_name_plural|title }}
+        </a>
+    </div>
+    <h2 class="form-title">
+        {% if add %}
+        Добавить {{ opts.verbose_name|lower }}
+        {% else %}
+        Изменить {{ opts.verbose_name|lower }}
+        {% endif %}
+    </h2>
+    {% if not add and original %}
+    <p class="form-subtitle">{{ original }}</p>
+    {% endif %}
+</div>
+
+<!-- Form Container -->
+<div class="change-form-container">
+    <form {% if has_file_field %}enctype="multipart/form-data" {% endif %}action="{{ form_url }}" method="post" id="{{ opts.model_name }}_form" class="change-form">
+        {% csrf_token %}
+        
+        {% if is_popup %}
+        <input type="hidden" name="_popup" value="1">
+        {% endif %}
+        
+        {% if save_as_new %}
+        <input type="hidden" name="_saveasnew" value="1">
+        {% endif %}
+
+        {% block form_errors %}
+        {% if errors %}
+        <div class="form-errors">
+            <div class="error-header">
+                <i data-lucide="alert-circle" class="icon-size-20"></i>
+                <span>Пожалуйста, исправьте ошибки ниже</span>
+            </div>
+            {% for error in adminform.form.non_field_errors %}
+            <p class="error-item">{{ error }}</p>
+            {% endfor %}
+        </div>
+        {% endif %}
+        {% endblock %}
+
+        {% block field_sets %}
+        {% for fieldset in adminform %}
+        <div class="form-fieldset">
+            {% if fieldset.name %}
+            <h3 class="fieldset-title">{{ fieldset.name }}</h3>
+            {% endif %}
+            
+            <div class="fieldset-content">
+                {% for line in fieldset %}
+                <div class="form-row {% if line.errors %}has-errors{% endif %} {% for field in line %}field-{{ field.field.name }}{% endfor %}">
+                    {% for field in line %}
+                    <div class="form-field {% if field.field.errors %}error{% endif %}">
+                        <label class="field-label" for="{{ field.field.id_for_label }}">
+                            {{ field.field.label }}
+                            {% if field.field.field.required %}
+                            <span class="required-indicator">*</span>
+                            {% endif %}
+                        </label>
+                        
+                        <div class="field-widget">
+                            {{ field.field }}
+                            {% if field.field.help_text %}
+                            <p class="field-help">{{ field.field.help_text|safe }}</p>
+                            {% endif %}
+                            {% if field.field.errors %}
+                            <div class="field-errors">
+                                {% for error in field.field.errors %}
+                                <span class="error-text">{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endfor %}
+        {% endblock %}
+
+        {% block after_field_sets %}
+        {% endblock %}
+
+        {% block inline_field_sets %}
+        {% for inline_admin_formset in inline_admin_formsets %}
+        <div class="form-fieldset inline-fieldset">
+            {% include inline_admin_formset.opts.template %}
+        </div>
+        {% endfor %}
+        {% endblock %}
+
+        {% block form_actions %}
+        <div class="form-actions">
+            <div class="actions-left">
+                {% if not add and has_delete_permission %}
+                <a href="{% url opts|admin_urlname:'delete' original.pk %}" class="admin-btn admin-btn-danger">
+                    <i data-lucide="trash-2" class="icon-size-16"></i>
+                    Удалить
+                </a>
+                {% endif %}
+            </div>
+            <div class="actions-right">
+                {% if add or save_as_new %}
+                <button type="submit" name="_save" value="1" class="admin-btn admin-btn-primary">
+                    <i data-lucide="save" class="icon-size-16"></i>
+                    Сохранить
+                </button>
+                {% else %}
+                <button type="submit" name="_save" value="1" class="admin-btn admin-btn-primary">
+                    <i data-lucide="save" class="icon-size-16"></i>
+                    Сохранить
+                </button>
+                {% if show_save_as_new %}
+                <button type="submit" name="_saveasnew" value="1" class="admin-btn admin-btn-outline">
+                    <i data-lucide="copy" class="icon-size-16"></i>
+                    Сохранить как новый
+                </button>
+                {% endif %}
+                {% if show_save_and_add_another %}
+                <button type="submit" name="_addanother" value="1" class="admin-btn admin-btn-outline">
+                    <i data-lucide="plus-circle" class="icon-size-16"></i>
+                    Сохранить и добавить
+                </button>
+                {% endif %}
+                {% if show_save_and_continue %}
+                <button type="submit" name="_continue" value="1" class="admin-btn admin-btn-outline">
+                    <i data-lucide="edit" class="icon-size-16"></i>
+                    Сохранить и продолжить
+                </button>
+                {% endif %}
+                {% endif %}
+            </div>
+        </div>
+        {% endblock %}
+    </form>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+{{ media.js }}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    if (window.lucide) {
+        window.lucide.createIcons();
+    }
+});
+</script>
+{% endblock %}

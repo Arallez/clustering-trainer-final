@@ -1,0 +1,197 @@
+{% extends 'testing/base_testing.html' %}
+
+{% block title %}Результат: {{ attempt.test.title }}{% endblock %}
+
+{% block testing_pre_js %}
+{% include 'includes/markdown_scripts.html' %}
+{% endblock %}
+
+{% block testing_content %}
+    <!-- Page Header -->
+    <header class="page-header">
+      <div class="breadcrumbs">
+        <a href="{% url 'testing:home' %}">
+          <i data-lucide="arrow-left"></i>
+          Вернуться к списку тестов
+        </a>
+      </div>
+      <h1>Результат: {{ attempt.test.title }}</h1>
+    </header>
+
+    <!-- Score Card -->
+    <div class="testing-card result-card">
+      {% if attempt.is_graded %}
+      <div class="result-score-section">
+        <div class="result-score-icon result-score-icon--{{ score_status }}">
+          {% if score_status == 'failed' %}
+          <i data-lucide="x-circle"></i>
+          {% elif score_status == 'passed' %}
+          <i data-lucide="check-circle"></i>
+          {% else %}
+          <i data-lucide="award"></i>
+          {% endif %}
+        </div>
+        <div class="result-score-content">
+          <span class="result-score-label">Итоговый балл</span>
+          <div class="result-score-value">
+            <span class="score-value score-value--{{ score_status }}">{{ attempt.total_score }}</span>
+            <span class="score-divider">/</span>
+            <span class="score-max">{{ attempt.test.max_possible_score }}</span>
+            <span class="score-percent score-percent--{{ score_status }}">({{ score_percent }}%)</span>
+          </div>
+        </div>
+        <div class="result-status-badge">
+          {% if score_status == 'failed' %}
+          <span class="status-badge status-badge--failed">Тест не сдан</span>
+          {% elif score_status == 'passed' %}
+          <span class="status-badge status-badge--passed">Тест сдан</span>
+          {% else %}
+          <span class="status-badge status-badge--excellent">Отлично!</span>
+          {% endif %}
+        </div>
+      </div>
+      {% else %}
+      <div class="result-pending-section">
+        <div class="result-pending-icon">
+          <i data-lucide="clock"></i>
+        </div>
+        <div class="result-pending-content">
+          <span class="result-pending-label">Работа ожидает проверки</span>
+          <p class="result-pending-text">Преподаватель еще не выставил оценки. Вы получите баллы после проверки.</p>
+        </div>
+      </div>
+      {% endif %}
+    </div>
+
+    {% if attempt.teacher_comment %}
+    <!-- Teacher Comment -->
+    <div class="testing-card">
+      <div class="card-header">
+        <div class="card-icon">
+          <i data-lucide="message-circle"></i>
+        </div>
+        <h2>Комментарий преподавателя</h2>
+      </div>
+      <div class="teacher-comment">
+        {{ attempt.teacher_comment|linebreaks }}
+      </div>
+    </div>
+    {% endif %}
+
+    <!-- Answers Section -->
+    <h2 class="section-title">Ваши ответы по заданиям</h2>
+    
+    {% for ans in answers %}
+    <div class="testing-card result-answer-card">
+      <div class="result-header">
+        <div class="result-number">{{ forloop.counter }}</div>
+        <div class="result-title-group">
+          <h3 class="result-title">{{ ans.question.title }}</h3>
+          {% if attempt.is_graded %}
+          <div class="result-score">
+            <span class="score-value">{{ ans.score|default:0 }}</span>
+            <span class="score-max">/ {{ ans.question.max_score }}</span>
+          </div>
+          {% else %}
+          <span class="result-max">
+            <i data-lucide="award"></i>
+            Макс: {{ ans.question.max_score }}
+          </span>
+          {% endif %}
+        </div>
+      </div>
+
+      <div class="result-question markdown-content">
+        <span class="section-label">Условие задачи:</span>
+        {{ ans.question.content }}
+      </div>
+      
+      <div class="result-answer">
+        <span class="section-label">
+          <i data-lucide="message-square"></i>
+          Ваш ответ:
+        </span>
+        
+        {% if ans.text_answer %}
+        <div class="answer-text">
+          <pre>{{ ans.text_answer }}</pre>
+        </div>
+        {% endif %}
+        
+        {% if ans.file_answer %}
+        <div class="answer-file">
+          <a href="{{ ans.file_answer.url }}" target="_blank" class="btn btn-outline">
+            <i data-lucide="download"></i>
+            Скачать отправленный файл
+          </a>
+        </div>
+        {% endif %}
+
+        {% if not ans.text_answer and not ans.file_answer %}
+        <div class="answer-empty">
+          <i data-lucide="alert-circle"></i>
+          Ответ не был предоставлен
+        </div>
+        {% endif %}
+      </div>
+
+      {% if ans.feedback %}
+      <div class="result-feedback">
+        <span class="section-label">
+          <i data-lucide="message-circle"></i>
+          Комментарий преподавателя:
+        </span>
+        <div class="feedback-text">{{ ans.feedback|linebreaksbr }}</div>
+      </div>
+      {% endif %}
+    </div>
+    {% empty %}
+    <div class="testing-card">
+      <div class="empty-state">
+        <i data-lucide="file-x"></i>
+        <p>Вы не дали ни одного ответа в этом тесте.</p>
+      </div>
+    </div>
+    {% endfor %}
+
+    {% if auto_task_attempts %}
+    <h2 class="section-title">Автопроверяемые задания</h2>
+    {% for task_attempt in auto_task_attempts %}
+    <div class="testing-card result-answer-card">
+      <div class="result-header">
+        <div class="result-number">{{ forloop.counter }}</div>
+        <div class="result-title-group">
+          <h3 class="result-title">{{ task_attempt.task.title }}</h3>
+          <div class="result-score">
+            {% if task_attempt.is_correct %}
+            <span class="status-badge status-badge--success">Решено</span>
+            <span class="score-value">{{ task_attempt.test_score }}</span>
+            <span class="score-max">/ {{ task_attempt.test_score }}</span>
+            {% else %}
+            <span class="status-badge status-badge--warning">Попытка неверная</span>
+            <span class="score-value">0</span>
+            <span class="score-max">/ {{ task_attempt.test_score }}</span>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+
+      <div class="result-answer">
+        <span class="section-label">
+          <i data-lucide="message-square"></i>
+          Последний отправленный ответ:
+        </span>
+        <div class="answer-text">
+          <pre>{{ task_attempt.code }}</pre>
+        </div>
+        {% if task_attempt.error_message %}
+        <div class="result-feedback">
+          <span class="section-label">Сообщение проверки:</span>
+          <div class="feedback-text">{{ task_attempt.error_message }}</div>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+    {% endfor %}
+    {% endif %}
+{% endblock %}

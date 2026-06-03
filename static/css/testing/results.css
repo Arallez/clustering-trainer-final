@@ -1,0 +1,179 @@
+/* =========================================
+   TESTING RESULTS - Results Page Styles
+   ========================================= */
+
+/* Test Stats */
+.test-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border-subtle);
+}
+
+.stat-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--text-secondary);
+}
+
+.stat-item i {
+  width: 18px;
+  height: 18px;
+  color: var(--primary-400);
+}
+
+.stat-item strong {
+  color: var(--text-primary);
+}
+
+/* Table Wrapper */
+.table-wrapper {
+  overflow-x: auto;
+  margin: 0 -0.5rem;
+  padding: 0 0.5rem;
+}
+
+/* Student Info */
+.student-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+}
+
+.student-name {
+  color: var(--text-primary);
+  font-size: 0.95rem;
+}
+
+.student-fullname {
+  color: var(--text-muted);
+  font-size: 0.8rem;
+}
+
+/* Progress Text */
+.progress-text {
+  font-family: var(--font-mono);
+  color: var(--text-secondary);
+}
+
+/* Score Empty */
+.score-empty {
+  color: var(--text-disabled);
+}
+
+/* Score Display in Table */
+.score-display {
+  display: flex;
+  align-items: baseline;
+  gap: 0.25rem;
+  white-space: nowrap;
+}
+
+.score-display .score-value {
+  font-weight: 700;
+  font-size: 1rem;
+}
+
+.score-display .score-max {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+/* =========================================
+   SCORE STATUS COLORS
+   ========================================= */
+
+/* Score Value Colors */
+.score-value--failed {
+  color: #ef4444 !important;
+}
+
+.score-value--passed {
+  color: #f59e0b !important;
+}
+
+.score-value--excellent {
+  color: #22c55e !important;
+}
+
+/* Score Percent */
+.score-percent {
+  margin-left: 0.5rem;
+  font-size: 0.9em;
+  font-weight: 500;
+}
+
+.score-percent--failed {
+  color: #ef4444 !important;
+}
+
+.score-percent--passed {
+  color: #f59e0b !important;
+}
+
+.score-percent--excellent {
+  color: #22c55e !important;
+}
+
+/* Score Divider */
+.score-divider {
+  color: var(--text-muted);
+  margin: 0 0.25rem;
+}
+
+/* Result Score Icon Colors */
+.result-score-icon--failed {
+  background: rgba(239, 68, 68, 0.15) !important;
+  color: #ef4444 !important;
+}
+
+.result-score-icon--passed {
+  background: rgba(245, 158, 11, 0.15) !important;
+  color: #f59e0b !important;
+}
+
+.result-score-icon--excellent {
+  background: rgba(34, 197, 94, 0.15) !important;
+  color: #22c55e !important;
+}
+
+/* Status Badge Variants */
+.status-badge--failed {
+  background: rgba(239, 68, 68, 0.15) !important;
+  color: #ef4444 !important;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.status-badge--passed {
+  background: rgba(245, 158, 11, 0.15) !important;
+  color: #f59e0b !important;
+  border: 1px solid rgba(245, 158, 11, 0.3);
+}
+
+.status-badge--excellent {
+  background: rgba(34, 197, 94, 0.15) !important;
+  color: #22c55e !important;
+  border: 1px solid rgba(34, 197, 94, 0.3);
+}
+
+/* =========================================
+   RESPONSIVE
+   ========================================= */
+@media (max-width: 768px) {
+  .test-stats {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+  
+  .result-table {
+    font-size: 0.85rem;
+  }
+  
+  .result-table th,
+  .result-table td {
+    padding: 0.5rem;
+  }
+}

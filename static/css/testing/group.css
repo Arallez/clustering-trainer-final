@@ -1,0 +1,73 @@
+/* =========================================
+   TESTING GROUP - Group Detail Page Styles
+   ========================================= */
+
+/* Group Code Display */
+.group-code-display {
+  padding: 1rem 0;
+}
+
+.testing-code--large {
+  font-size: 1.5rem;
+  padding: 0.75rem 1.25rem;
+  letter-spacing: 4px;
+}
+
+/* Group Table */
+.group-table {
+  min-width: 100%;
+}
+
+.group-table th {
+  vertical-align: top;
+}
+
+.group-table .test-link {
+  display: block;
+  color: var(--text-secondary);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.group-table .test-link:hover {
+  color: var(--primary-400);
+}
+
+.group-table .test-max {
+  display: block;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-top: 0.25rem;
+}
+
+/* Result Cell */
+.result-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  align-items: flex-start;
+}
+
+.status-text {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+
+/* =========================================
+   RESPONSIVE
+   ========================================= */
+@media (max-width: 768px) {
+  .testing-code--large {
+    font-size: 1.1rem;
+    letter-spacing: 2px;
+  }
+  
+  .group-table {
+    font-size: 0.8rem;
+  }
+  
+  .group-table th,
+  .group-table td {
+    padding: 0.5rem 0.25rem;
+  }
+}

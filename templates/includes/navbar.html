@@ -1,0 +1,48 @@
+{% load static %}
+<nav class="navbar">
+    <a href="{% url 'core:home' %}" class="navbar-brand">
+        <img src="{% static 'images/logo-Photoroom.png' %}" alt="Logo" class="logo-img">
+        <span class="brand-text">Clustering Trainer</span>
+    </a>
+    
+    <div class="nav-links">
+        <a href="{% url 'simulator:index' %}" class="nav-item {% if request.resolver_match.namespace == 'simulator' %}active{% endif %}">
+            Симулятор
+        </a>
+        <a href="{% url 'tasks:task_list' %}" class="nav-item {% if request.resolver_match.namespace == 'tasks' %}active{% endif %}">
+            Задачи
+        </a>
+        <a href="{% url 'encyclopedia:graph' %}" class="nav-item {% if request.resolver_match.namespace == 'encyclopedia' %}active{% endif %}">
+            База знаний
+        </a>
+        <a href="{% url 'materials:materials_list' %}" class="nav-item {% if request.resolver_match.namespace == 'materials' %}active{% endif %}">
+            Материалы
+        </a>
+        <a href="{% url 'testing:home' %}" class="nav-item {% if request.resolver_match.namespace == 'testing' %}active{% endif %}">
+            Тестирование
+        </a>
+    </div>
+    
+    <div class="nav-auth">
+        <button type="button" class="nav-mobile-toggle" aria-label="Открыть меню" aria-expanded="false">
+            <i data-lucide="menu"></i>
+        </button>
+        {% if user.is_authenticated %}
+            <a href="{% url 'core:profile' %}" class="btn btn-outline" aria-label="Профиль ({{ user.username }})">
+                <i data-lucide="user"></i>
+                <span class="btn-label">{{ user.username }}</span>
+            </a>
+            {% if user.is_staff %}
+                <a href="{% url 'admin:index' %}" class="btn btn-secondary nav-admin-btn" aria-label="Админка">
+                    <i data-lucide="settings"></i>
+                    <span class="btn-label">Админка</span>
+                </a>
+            {% endif %}
+        {% else %}
+            <a href="{% url 'core:login' %}" class="btn btn-primary" aria-label="Вход">
+                <i data-lucide="log-in"></i>
+                <span class="btn-label">Вход</span>
+            </a>
+        {% endif %}
+    </div>
+</nav>

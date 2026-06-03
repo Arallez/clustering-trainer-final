@@ -1,0 +1,99 @@
+{% extends "admin/base_admin.html" %}
+{% load static admin_urls i18n %}
+
+{% block extrastyle %}
+<link rel="stylesheet" href="{% static 'css/admin/change_form.css' %}">
+{% endblock %}
+
+{% block page_title %}Удалить {{ opts.verbose_name|lower }}{% endblock %}
+
+{% block content %}
+<!-- Form Header -->
+<div class="change-form-header">
+    <div class="form-breadcrumb">
+        <a href="{% url opts|admin_urlname:'changelist' %}" class="breadcrumb-link">
+            <i data-lucide="arrow-left" class="icon-size-16"></i>
+            {{ opts.verbose_name_plural|title }}
+        </a>
+    </div>
+    <h2 class="form-title">Удалить {{ opts.verbose_name|lower }}</h2>
+    {% if original %}
+    <p class="form-subtitle">{{ original }}</p>
+    {% endif %}
+</div>
+
+<!-- Delete Confirmation Container -->
+<div class="change-form-container">
+    <div class="delete-confirmation">
+        <div class="delete-icon">
+            <i data-lucide="alert-triangle" class="icon-size-48"></i>
+        </div>
+        
+        <h3 class="delete-title">Вы уверены, что хотите удалить?</h3>
+        
+        <p class="delete-description">
+            {{ object }}
+        </p>
+        
+        {% if perms_lacking %}
+        <div class="delete-warning">
+            <p>Удаление этого объекта невозможно, так как:</p>
+            <ul>
+                {% for perm in perms_lacking %}
+                <li>{{ perm }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+        {% elif protected %}
+        <div class="delete-warning">
+            <p>Невозможно удалить этот объект, так как на него ссылаются:</p>
+            <ul>
+                {% for obj in protected %}
+                <li>{{ obj }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+        {% else %}
+        {% if desc %}
+        <div class="delete-summary">
+            <p>Будут также удалены:</p>
+            <ul>
+                {% for model, obj_count in desc.items %}
+                <li>{{ model|capfirst }}: {{ obj_count }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+        {% endif %}
+        
+        <form method="post" class="delete-form">
+            {% csrf_token %}
+            <input type="hidden" name="post" value="yes">
+            <div class="form-actions">
+                <div class="actions-left">
+                    <a href="{% url opts|admin_urlname:'changelist' %}" class="admin-btn admin-btn-outline">
+                        <i data-lucide="arrow-left" class="icon-size-16"></i>
+                        Отмена
+                    </a>
+                </div>
+                <div class="actions-right">
+                    <button type="submit" class="admin-btn admin-btn-danger">
+                        <i data-lucide="trash-2" class="icon-size-16"></i>
+                        Да, удалить
+                    </button>
+                </div>
+            </div>
+        </form>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    if (window.lucide) {
+        window.lucide.createIcons();
+    }
+});
+</script>
+{% endblock %}
